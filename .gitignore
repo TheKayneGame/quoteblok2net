@@ -1,0 +1,6 @@
+/.vscode
+/Databases
+/bin
+/obj
+/packages-microsoft-prod.deb
+/token.ignore
