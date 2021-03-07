@@ -26,6 +26,7 @@ namespace quoteblok2net
             _services = new ServiceCollection()
                 .AddSingleton(_client)
                 .AddSingleton(new InteractivityService(_client, TimeSpan.FromSeconds(20), false))
+                .AddSingleton<CommandService>()
                 .BuildServiceProvider();
 
             _commands = new CommandService();

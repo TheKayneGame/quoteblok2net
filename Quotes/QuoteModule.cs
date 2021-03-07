@@ -6,40 +6,71 @@ using Interactivity;
 using Interactivity.Confirmation;
 using Interactivity.Pagination;
 using System;
+using Discord;
 
 namespace quoteblok2net
 {
-    
+
     [Group("quote")]
     public class QuoteModule : ModuleBase<SocketCommandContext>
     {
         private QuoteManager _quoteManager = QuoteManager.GetInstance();
+        public CommandService CommandService { get; set; }
         public InteractivityService Interactivity { get; set; }
 
         [Command("echo")]
-        public async Task Ping([Remainder] string input)
+        [Summary("Fuck")]
+        public async Task Ping([Remainder] string quote)
         {
-            string msgBuf = input;
+            string msgBuf = quote;
 
             await ReplyAsync(msgBuf);
 
         }
 
+        [Command("help")]
+        public async Task Help()
+        {     
+            EmbedBuilder embedBuilder = new EmbedBuilder();
+            List<CommandInfo> commands = new List<CommandInfo>(CommandService.Commands);
+
+            foreach (CommandInfo command in commands)
+            {
+                // Get the command Summary attribute information
+                string embedFieldText = command.Summary ?? "No description available\n";
+                string embedNameText = command.Name + " :";
+                
+                foreach (ParameterInfo p in command.Parameters){
+                    embedNameText += $" {p.Name}";
+                }
+                             
+
+
+                embedBuilder.AddField(embedNameText, embedFieldText);
+            }
+
+            await ReplyAsync("Here's a list of commands and their description: ", false, embedBuilder.Build());
+        }
+
         //Create
         [Command("add")]
-        public async Task QuoteAdd([Remainder] string input)
+        public async Task QuoteAdd([Remainder] string quote)
         {
             var serverID = Context.Guild.Id;
             var userID = Context.User.Id;
             var messageID = Context.Message.Id;
-            _quoteManager.Add(serverID, userID, messageID, input);
+            _quoteManager.Add(serverID, userID, messageID, quote);
 
-            await ReplyAsync($"Quote `{input}` is Toegevoegd");
+            await ReplyAsync($"Quote `{quote}` is Toegevoegd");
         }
 
         //Read
-        //[Command]
-        public async Task QuoteGet() {
+
+        [Command("get")]
+        [Alias("")]
+        [Priority(-10)]
+        public async Task QuoteGet()
+        {
             int index = new Random().Next(_quoteManager.GetCount(Context.Guild.Id));
             string quote = index + ". " + _quoteManager.Get(Context.Guild.Id, index).quote;
             await ReplyAsync(quote);
@@ -53,7 +84,7 @@ namespace quoteblok2net
                 await ReplyAsync("Ongeldig Getal");
                 return;
             }
-            string quote = index + ". " + _quoteManager.Get(Context.Guild.Id, index);
+            string quote = index + ". " + _quoteManager.Get(Context.Guild.Id, index).quote;
             await ReplyAsync(quote);
         }
 
@@ -80,7 +111,7 @@ namespace quoteblok2net
                     pagedQuoteBuff.Add(new PageBuilder().WithText(messageBuff));
                     messageBuff = "";
                 }
-                
+
             });
             pagedQuoteBuff.Add(new PageBuilder().WithText(messageBuff));
 
@@ -107,20 +138,23 @@ namespace quoteblok2net
         {
             await _QuoteRemove(index);
         }
-        
+
         [Command("remove", RunMode = RunMode.Async)]
         public async Task QuoteRemove(int index)
         {
-            if (_quoteManager.Get(Context.Guild.Id, index).userID != (long) Context.User.Id) {
+            if (_quoteManager.Get(Context.Guild.Id, index).userID != (long)Context.User.Id)
+            {
                 await ReplyAsync("Dit is niet jouw Citaat");
                 return;
             }
-            await _QuoteRemove(index);                   
+            await _QuoteRemove(index);
         }
 
-        private async Task _QuoteRemove(int index){
+        private async Task _QuoteRemove(int index)
+        {
             var request = new ConfirmationBuilder()
                 .WithContent(new PageBuilder().WithText("Please Confirm"))
+                .WithUsers(Context.User)
                 .Build();
 
             var result = await Interactivity.SendConfirmationAsync(request, Context.Channel);
