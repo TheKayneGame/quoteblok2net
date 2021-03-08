@@ -22,6 +22,11 @@ namespace quoteblok2net
         [Summary("Fuck")]
         public async Task Ping([Remainder] string quote)
         {
+            var conMsg = Context.Message;
+            if (conMsg.MentionedChannels.Count + conMsg.MentionedRoles.Count + conMsg.MentionedUsers.Count > 0|| conMsg.MentionedEveryone){
+                await ReplyAsync("Ga geen mensen lastig vallen");
+            }
+            
             string msgBuf = quote;
 
             await ReplyAsync(msgBuf);
@@ -43,22 +48,23 @@ namespace quoteblok2net
                 foreach (ParameterInfo p in command.Parameters){
                     embedNameText += $" {p.Name}";
                 }
-                             
-
 
                 embedBuilder.AddField(embedNameText, embedFieldText);
             }
 
-            await ReplyAsync("Here's a list of commands and their description: ", false, embedBuilder.Build());
+            await ReplyAsync("Hier is een Commando lijst: ", false, embedBuilder.Build());
         }
 
         //Create
         [Command("add")]
         public async Task QuoteAdd([Remainder] string quote)
         {
+            
+
             var serverID = Context.Guild.Id;
             var userID = Context.User.Id;
             var messageID = Context.Message.Id;
+            
             _quoteManager.Add(serverID, userID, messageID, quote);
 
             await ReplyAsync($"Quote `{quote}` is Toegevoegd");
