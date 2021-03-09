@@ -144,9 +144,11 @@ namespace quoteblok2net.quotes
         /// <param name="id"></param>
         /// <param name="quote"></param>
         /// <returns></returns>
-        public bool Edit(Guid id, string quote)
+        public bool Edit(ulong serverID,int index, string quote)
         {
-            return false;
+            Quote quoteBuff = Get(serverID, index);
+            quoteBuff.quote = quote;
+            return _db.Update(quoteBuff) > 0;
         }
 
         /// <summary>
@@ -214,6 +216,21 @@ namespace quoteblok2net.quotes
 
         }
 
+        public void Import(ulong serverID, ulong userID, ulong msgID)
+        {
+            try {
+                System.IO.StreamReader file = new System.IO.StreamReader($"{serverID}");
+                string line = "";
+                while((line = file.ReadLine()) != null)  
+                {  
+                    this.Add(serverID, userID, msgID, line);
+                }
+            } catch (Exception e){
+                Console.WriteLine(e);
+            }
+            
+            
+        }
 
         private Guid _GetGuid(ulong serverID, int index)
         {
