@@ -46,7 +46,7 @@ namespace quoteblok2net
 
             int argPos = 0;
 
-            if (!(msg.HasCharPrefix('!', ref argPos) ||
+            if (!(msg.HasCharPrefix('?', ref argPos) ||
                 msg.HasMentionPrefix(_client.CurrentUser, ref argPos)) ||
                 msg.Author.IsBot)
                 return;

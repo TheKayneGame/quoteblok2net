@@ -1,5 +1,8 @@
 using System;
 using System.Collections.Generic;
+using System.Linq;
+using System.Text.RegularExpressions;
+using Discord.Commands;
 using quoteblok2net.quotes;
 using SQLite;
 
@@ -48,8 +51,12 @@ namespace quoteblok2net.quotes
             quoteEntry.msgID = (long)messageID;
             quoteEntry.quote = quote;
             quoteEntry.Date = DateTime.UtcNow;
+            return Add(quoteEntry);
+        }
 
-            int res = _db.Insert(quoteEntry);
+        public bool Add(Quote quote){
+
+            int res = _db.Insert(quote);
             return res > 0;
         }
 
@@ -137,9 +144,11 @@ namespace quoteblok2net.quotes
         /// <param name="id"></param>
         /// <param name="quote"></param>
         /// <returns></returns>
-        public bool Edit(Guid id, string quote)
+        public bool Edit(ulong serverID,int index, string quote)
         {
-            return false;
+            Quote quoteBuff = Get(serverID, index);
+            quoteBuff.quote = quote;
+            return _db.Update(quoteBuff) > 0;
         }
 
         /// <summary>
@@ -189,7 +198,39 @@ namespace quoteblok2net.quotes
             return this.Remove(id);
         }
 
+        public static string DeMention(string quote, SocketCommandContext context) {
+            Regex rx = new Regex(@"<@[&!](.+?)>");
+            MatchCollection matches = rx.Matches(quote);
+            var distinctMatches = matches.GroupBy(m => m.Value).Select(m => m.FirstOrDefault()).ToList();
+            foreach (Match m in distinctMatches) {
+                string username = context.Guild.GetUser(ulong.Parse(m.Groups[1].Value)).Username;
+                quote.Replace(m.Value, username);
+            }
+            return quote;
 
+        }
+
+        public static Quote DeMention(Quote quote, SocketCommandContext context) {
+            quote.quote = DeMention(quote.quote, context);
+            return quote;
+
+        }
+
+        public void Import(ulong serverID, ulong userID, ulong msgID)
+        {
+            try {
+                System.IO.StreamReader file = new System.IO.StreamReader($"{serverID}");
+                string line = "";
+                while((line = file.ReadLine()) != null)  
+                {  
+                    this.Add(serverID, userID, msgID, line);
+                }
+            } catch (Exception e){
+                Console.WriteLine(e);
+            }
+            
+            
+        }
 
         private Guid _GetGuid(ulong serverID, int index)
         {
