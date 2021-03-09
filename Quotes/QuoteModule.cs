@@ -68,9 +68,14 @@ namespace quoteblok2net
         public async Task QuoteAdd([Remainder] string quote)
         {  
             var conMsg = Context.Message;
-            if (conMsg.MentionedChannels.Count + conMsg.MentionedRoles.Count + conMsg.MentionedUsers.Count > 0|| conMsg.MentionedEveryone){
+            if (conMsg.MentionedChannels.Count + conMsg.MentionedRoles.Count + conMsg.MentionedUsers.Count > 0 || conMsg.MentionedEveryone){
                 await ReplyAsync("Ga geen mensen lastig vallen");
                 return;
+            }
+
+            if (conMsg.Content.Length > 500) 
+            {
+                await ReplyAsync("Ga geen roman Citeren");
             }
 
             var serverID = Context.Guild.Id;
