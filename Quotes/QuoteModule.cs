@@ -76,6 +76,7 @@ namespace quoteblok2net
             if (conMsg.Content.Length > 500) 
             {
                 await ReplyAsync("Ga geen roman Citeren");
+                return;
             }
 
             var serverID = Context.Guild.Id;
