@@ -1,12 +1,24 @@
 using System;
 using SQLite;
 
-namespace quoteblok2net.quotes
+namespace quoteblok2net.quotes.SQLite
 {
     
-[Table("quotes")]
-    public class Quote
+    [Table("quotes")]
+    public class QuoteSQLite : IQuote
     {
+        public QuoteSQLite(){
+
+        }
+        public QuoteSQLite(IQuote quote) {
+            quoteID = quote.quoteID;
+            serverID = quote.serverID;
+            userID = quote.userID;
+            msgID = quote.msgID;
+            quoteText = quote.quoteText;
+            date = quote.date;
+        }
+
         [PrimaryKey] 
         [Column("id")]
         public Guid quoteID
@@ -25,11 +37,11 @@ namespace quoteblok2net.quotes
         { get; set; }
 
         [Column("quote")]
-        public string quote
+        public string quoteText
         { get; set; }
 
         [Column("date")]
-        public DateTime Date
+        public DateTime date
         { get; set; }
     }
 }

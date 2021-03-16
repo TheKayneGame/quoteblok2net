@@ -6,6 +6,7 @@ using Discord.WebSocket;
 using Interactivity;
 using Microsoft.Extensions.DependencyInjection;
 using quoteblok2net.quotes;
+using quoteblok2net.quotes.SQLite;
 
 namespace quoteblok2net
 {
@@ -27,6 +28,7 @@ namespace quoteblok2net
                 .AddSingleton(_client)
                 .AddSingleton(new InteractivityService(_client, TimeSpan.FromSeconds(20), false))
                 .AddSingleton<CommandService>()
+                .AddSingleton<IQuoteManager>(new QuoteManager())
                 .BuildServiceProvider();
 
             _commands = new CommandService();
@@ -46,7 +48,7 @@ namespace quoteblok2net
 
             int argPos = 0;
 
-            if (!(msg.HasCharPrefix('?', ref argPos) ||
+            if (!(msg.HasCharPrefix('<', ref argPos) ||
                 msg.HasMentionPrefix(_client.CurrentUser, ref argPos)) ||
                 msg.Author.IsBot)
                 return;

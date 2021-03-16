@@ -6,9 +6,9 @@ using Discord.Commands;
 using quoteblok2net.quotes;
 using SQLite;
 
-namespace quoteblok2net.quotes
+namespace quoteblok2net.quotes.SQLite
 {
-    public class QuoteManager
+    public class QuoteManager : IQuoteManager
     {
         private static QuoteManager _quoteManager;
         public SQLiteConnection _db;
@@ -16,7 +16,7 @@ namespace quoteblok2net.quotes
         public QuoteManager()
         {
             _db = new SQLiteConnection("./Databases/Rooivalk.db");
-            CreateTableResult result = _db.CreateTable<Quote>();
+            CreateTableResult result = _db.CreateTable<QuoteSQLite>();
             Console.WriteLine(result);
         }
 
@@ -32,7 +32,6 @@ namespace quoteblok2net.quotes
         }
 
         /*Create*/
-
         /// <summary>
         /// 
         /// </summary>
@@ -43,22 +42,25 @@ namespace quoteblok2net.quotes
         /// <returns></returns>
         public bool Add(ulong serverID, ulong userID, ulong messageID, string quote)
         {
-            Quote quoteEntry = new Quote();
+            QuoteSQLite quoteEntry = new QuoteSQLite() {
+                quoteID = Guid.NewGuid(),
+                serverID = (long)serverID,
+                userID = (long)userID,
+                msgID = (long)messageID,
+                quoteText = quote,
+                date = DateTime.UtcNow
+            };
 
-            quoteEntry.quoteID = Guid.NewGuid();
-            quoteEntry.serverID = (long)serverID;
-            quoteEntry.userID = (long)userID;
-            quoteEntry.msgID = (long)messageID;
-            quoteEntry.quote = quote;
-            quoteEntry.Date = DateTime.UtcNow;
             return Add(quoteEntry);
         }
 
-        public bool Add(Quote quote){
-
-            int res = _db.Insert(quote);
+        public bool Add(IQuote quote){
+            QuoteSQLite quoteSQLite = quote as QuoteSQLite ?? new QuoteSQLite(quote);
+            int res = _db.Insert(quoteSQLite);
             return res > 0;
         }
+
+
 
         /*Read*/
 
@@ -67,9 +69,9 @@ namespace quoteblok2net.quotes
         /// </summary>
         /// <param name="id"></param>
         /// <returns>Quote</returns>
-        public Quote Get(Guid id)
+        public IQuote Get(Guid id)
         {
-            return _db.Get<Quote>(t => t.quoteID == id);
+            return _db.Get<QuoteSQLite>(t => t.quoteID == id);
         }
 
 
@@ -79,7 +81,7 @@ namespace quoteblok2net.quotes
         /// <param name="serverID"></param>
         /// <param name="index"></param>
         /// <returns>Quote</returns>
-        public Quote Get(ulong serverID, int index)
+        public IQuote Get(ulong serverID, int index)
         {
             Guid id = _GetGuid(serverID, index);
             return this.Get(id);
@@ -90,7 +92,7 @@ namespace quoteblok2net.quotes
         /// </summary>
         /// <param name="messageID"></param>
         /// <returns>Quote</returns>
-        public Quote Get(ulong messageID)
+        public IQuote Get(ulong messageID)
         {
             Guid id = _GetGuid(messageID);
             return this.Get(id);
@@ -100,9 +102,9 @@ namespace quoteblok2net.quotes
         /// 
         /// </summary>
         /// <returns></returns>
-        public List<Quote> GetAll()
+        public List<IQuote> GetAll()
         {
-            return _db.Table<Quote>().ToList();
+            return _db.Table<QuoteSQLite>().Cast<IQuote>().ToList();
         }
 
         /// <summary>
@@ -110,10 +112,10 @@ namespace quoteblok2net.quotes
         /// </summary>
         /// <param name="serverID"></param>
         /// <returns></returns>
-        public List<Quote> GetAll(ulong serverID)
+        public List<IQuote> GetAll(ulong serverID)
         {
             long id = (long) serverID;
-            return _db.Table<Quote>().Where(t => t.serverID == id).ToList();
+            return _db.Table<QuoteSQLite>().Where(t => t.serverID == id).Cast<IQuote>().ToList();
         }
 
         /// <summary>
@@ -122,7 +124,7 @@ namespace quoteblok2net.quotes
         /// <returns></returns>
         public int GetCount()
         {
-            return _db.Table<Quote>().Count();
+            return _db.Table<QuoteSQLite>().Count();
         }
         
         /// <summary>
@@ -133,7 +135,7 @@ namespace quoteblok2net.quotes
         public int GetCount(ulong serverID)
         {
             long id = (long) serverID;
-            return _db.Table<Quote>().Count(t => t.serverID == id);
+            return _db.Table<QuoteSQLite>().Count(t => t.serverID == id);
         }
 
         /*Update*/
@@ -146,8 +148,8 @@ namespace quoteblok2net.quotes
         /// <returns></returns>
         public bool Edit(ulong serverID,int index, string quote)
         {
-            Quote quoteBuff = Get(serverID, index);
-            quoteBuff.quote = quote;
+            IQuote quoteBuff = Get(serverID, index);
+            quoteBuff.quoteText = quote;
             return _db.Update(quoteBuff) > 0;
         }
 
@@ -172,7 +174,7 @@ namespace quoteblok2net.quotes
         /// <returns></returns>
         public bool Remove(Guid id)
         {
-            return _db.Delete<Quote>(id) > 0;
+            return _db.Delete<QuoteSQLite>(id) > 0;
         }
 
         /// <summary>
@@ -197,25 +199,6 @@ namespace quoteblok2net.quotes
             Guid id = _GetGuid(messageID);
             return this.Remove(id);
         }
-
-        public static string DeMention(string quote, SocketCommandContext context) {
-            Regex rx = new Regex(@"<@[&!](.+?)>");
-            MatchCollection matches = rx.Matches(quote);
-            var distinctMatches = matches.GroupBy(m => m.Value).Select(m => m.FirstOrDefault()).ToList();
-            foreach (Match m in distinctMatches) {
-                string username = context.Guild.GetUser(ulong.Parse(m.Groups[1].Value)).Username;
-                quote.Replace(m.Value, username);
-            }
-            return quote;
-
-        }
-
-        public static Quote DeMention(Quote quote, SocketCommandContext context) {
-            quote.quote = DeMention(quote.quote, context);
-            return quote;
-
-        }
-
         public void Import(ulong serverID, ulong userID, ulong msgID)
         {
             try {
@@ -234,12 +217,12 @@ namespace quoteblok2net.quotes
 
         private Guid _GetGuid(ulong serverID, int index)
         {
-            return _db.FindWithQuery<Quote>("SELECT * FROM quotes WHERE server_id = ? LIMIT ?,1", (long)serverID, index).quoteID;
+            return _db.FindWithQuery<QuoteSQLite>("SELECT * FROM quotes WHERE server_id = ? LIMIT ?,1", (long)serverID, index).quoteID;
         }
 
         private Guid _GetGuid(ulong messageID)
         {
-            return _db.Get<Quote>(t => t.msgID == (long)messageID).quoteID;
+            return _db.Get<QuoteSQLite>(t => t.msgID == (long)messageID).quoteID;
         }
 
     }
