@@ -4,6 +4,7 @@ using quoteblok2net.quotes;
 using MongoDB.Driver;
 using quoteblok2net.database;
 using System.Linq;
+using quoteblok2net.quotes.SQLite;
 
 namespace quoteblok2net
 {
@@ -85,7 +86,10 @@ namespace quoteblok2net
 
         public void Import(ulong serverID, ulong userID, ulong msgID)
         {
-            throw new NotImplementedException();
+            var db = SQLiteConnector.GetInstance();
+            db.Table<QuoteSQLite>().ToList().ForEach(x => {
+                Add((ulong)x.serverID,(ulong)x.userID,(ulong)x.msgID,x.quoteText);
+            });
         }
 
         public bool Remove(Guid id)

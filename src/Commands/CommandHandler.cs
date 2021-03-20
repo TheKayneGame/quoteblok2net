@@ -48,7 +48,7 @@ namespace quoteblok2net
 
             int argPos = 0;
 
-            if (!(msg.HasCharPrefix('<', ref argPos) ||
+            if (!(msg.HasCharPrefix('?', ref argPos) ||
                 msg.HasMentionPrefix(_client.CurrentUser, ref argPos)) ||
                 msg.Author.IsBot)
                 return;
@@ -60,7 +60,7 @@ namespace quoteblok2net
             argPos: argPos,
             services: _services);
 
-            if (!result.IsSuccess /*&& result.Error != CommandError.UnknownCommand*/)
+            if (!result.IsSuccess && result.Error != CommandError.UnknownCommand)
             {
                 await context.Channel.SendMessageAsync(result.ErrorReason);
             }
