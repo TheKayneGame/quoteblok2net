@@ -1,0 +1,11 @@
+{
+    "token": null,
+
+    "database": {
+        "username":   "admin",
+        "password":   "admin",
+        "address":    "localhost",
+        "port":       "11000"
+    }
+
+}

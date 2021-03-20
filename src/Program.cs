@@ -4,6 +4,7 @@ using System.Threading;
 using System.Threading.Tasks;
 using Discord;
 using Discord.WebSocket;
+using quoteblok2net.BotSystem;
 
 namespace quoteblok2net
 {
@@ -42,7 +43,7 @@ namespace quoteblok2net
 
         public async Task MainAsync()
         {
-            var token = File.ReadAllText("token.ignore");
+            var token = ConfigManager.config.token;
             _client = new DiscordSocketClient();
 
             _client.Log += LogAsync;

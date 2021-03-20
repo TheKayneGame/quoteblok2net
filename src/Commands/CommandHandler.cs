@@ -28,7 +28,7 @@ namespace quoteblok2net
                 .AddSingleton(_client)
                 .AddSingleton(new InteractivityService(_client, TimeSpan.FromSeconds(20), false))
                 .AddSingleton<CommandService>()
-                .AddSingleton<IQuoteManager>(new QuoteManagerSQLite())
+                .AddSingleton<IQuoteManager>(new QuoteManagerMongoDB())
                 .BuildServiceProvider();
 
             _commands = new CommandService();

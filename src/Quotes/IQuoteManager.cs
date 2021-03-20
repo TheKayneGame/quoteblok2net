@@ -93,7 +93,7 @@ namespace quoteblok2net.quotes
         /// <param name="index"></param>
         /// <param name="quote"></param>
         /// <returns></returns>
-        public bool Edit(int serverID, int index, string quote);
+        public bool Edit(ulong msgID);
 
         /*Remove*/
 

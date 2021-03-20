@@ -3,6 +3,7 @@ using System.Collections.Generic;
 using System.Linq;
 using System.Text.RegularExpressions;
 using Discord.Commands;
+using quoteblok2net.database;
 using quoteblok2net.quotes;
 using SQLite;
 
@@ -15,8 +16,8 @@ namespace quoteblok2net.quotes.SQLite
 
         public QuoteManagerSQLite()
         {
-            _db = new SQLiteConnection("./Databases/Rooivalk.db");
-            CreateTableResult result = _db.CreateTable<QuoteSQLite>();
+            _db = SQLiteConnector.GetInstance();
+            var result = _db.CreateTable<QuoteSQLite>();
             Console.WriteLine(result);
         }
 
@@ -153,16 +154,9 @@ namespace quoteblok2net.quotes.SQLite
             return _db.Update(quoteBuff) > 0;
         }
 
-        /// <summary>
-        /// 
-        /// </summary>
-        /// <param name="serverID"></param>
-        /// <param name="index"></param>
-        /// <param name="quote"></param>
-        /// <returns></returns>
-        public bool Edit(int serverID, int index, string quote)
+        public bool Edit(ulong msgID)
         {
-            return false;
+            throw new NotImplementedException();
         }
 
         /*Remove*/
@@ -224,6 +218,5 @@ namespace quoteblok2net.quotes.SQLite
         {
             return _db.Get<QuoteSQLite>(t => t.msgID == (long)messageID).quoteID;
         }
-
     }
 }
