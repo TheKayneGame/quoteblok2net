@@ -1,7 +1,7 @@
 using System;
 using MongoDB.Bson;
 using MongoDB.Driver;
-using quoteblok2net.BotSystem;
+using quoteblok2net.Utilities.Configs;
 
 namespace quoteblok2net.database
 {
@@ -10,6 +10,7 @@ namespace quoteblok2net.database
         private static MongoClient _dbClient;
         private static IMongoDatabase _db;
         public static IMongoDatabase GetDatabaseInstance() {
+
             if (_db == null){
                 
                 String connectionString = $"mongodb://{ConfigManager.config.mongoDB.login}:{ConfigManager.config.mongoDB.pass}@{ConfigManager.config.mongoDB.address}";               

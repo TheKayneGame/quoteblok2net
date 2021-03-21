@@ -6,7 +6,7 @@ namespace quoteblok2net
     {
         Guid quoteID { get; set; }
 
-        long serverID { get; set; }
+        long guildID { get; set; }
 
         long userID { get; set; }
 

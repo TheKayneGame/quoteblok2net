@@ -12,7 +12,7 @@ namespace quoteblok2net.quotes.SQLite
         }
         public QuoteSQLite(IQuote quote) {
             quoteID = quote.quoteID;
-            serverID = quote.serverID;
+            guildID = quote.guildID;
             userID = quote.userID;
             msgID = quote.msgID;
             quoteText = quote.quoteText;
@@ -25,7 +25,7 @@ namespace quoteblok2net.quotes.SQLite
         { get; set; }
 
         [Column("server_id")]
-        public long serverID
+        public long guildID
         { get; set; }
 
         [Column("user_id")]

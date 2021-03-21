@@ -6,7 +6,7 @@ using Discord.WebSocket;
 using Interactivity;
 using Microsoft.Extensions.DependencyInjection;
 using quoteblok2net.quotes;
-using quoteblok2net.quotes.SQLite;
+using quoteblok2net.Utilities.Settings.Guild;
 
 namespace quoteblok2net
 {
@@ -18,9 +18,12 @@ namespace quoteblok2net
 
         private IServiceProvider _services;
 
+        private GuildSettingsManager _guildSettingsManager = GuildSettingsManager.GetInstance();
+
         public  CommandHandler(DiscordSocketClient client)
         {
 		    _client = client;
+
         }
 
         public async Task Initialise() {
@@ -42,15 +45,15 @@ namespace quoteblok2net
         
         private async Task HandleCommandAsync(SocketMessage sockMsg)
         {
-            //Console.WriteLine("aaa");
             SocketUserMessage msg = sockMsg as SocketUserMessage;
-            if (msg == null) return;
+            if (msg == null || msg.Author.IsBot) return;
 
             int argPos = 0;
+            long guildID = (long)((SocketGuildChannel)msg.Channel).Guild.Id;
+            string prefix = _guildSettingsManager.GetGuildPrefix(guildID);
 
-            if (!(msg.HasCharPrefix('?', ref argPos) ||
-                msg.HasMentionPrefix(_client.CurrentUser, ref argPos)) ||
-                msg.Author.IsBot)
+            if (!(msg.HasStringPrefix(prefix, ref argPos) ||
+                msg.HasMentionPrefix(_client.CurrentUser, ref argPos)))
                 return;
 
             SocketCommandContext context = new SocketCommandContext(_client, msg);

@@ -10,7 +10,7 @@ namespace quoteblok2net
         }
         public QuoteMongoDB(IQuote quote) {
             quoteID = quote.quoteID;
-            serverID = quote.serverID;
+            guildID = quote.guildID;
             userID = quote.userID;
             msgID = quote.msgID;
             quoteText = quote.quoteText;
@@ -19,8 +19,8 @@ namespace quoteblok2net
 
         [BsonId]
         public Guid quoteID { get; set; }
-        [BsonElement("serverID")]
-        public long serverID { get; set; }
+        [BsonElement("guildID")]
+        public long guildID { get; set; }
         [BsonElement("userID")]
         public long userID { get; set; }
         [BsonElement("msgID")]

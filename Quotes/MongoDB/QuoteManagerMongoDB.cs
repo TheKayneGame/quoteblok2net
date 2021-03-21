@@ -16,11 +16,11 @@ namespace quoteblok2net
             _db = MongoConnector.GetDatabaseInstance().GetCollection<QuoteMongoDB>("quotes");
 
         }
-        public bool Add(ulong serverID, ulong userID, ulong messageID, string quote)
+        public bool Add(ulong guildID, ulong userID, ulong messageID, string quote)
         {
             QuoteMongoDB quoteEntry = new QuoteMongoDB() {
                 quoteID = Guid.NewGuid(),
-                serverID = (long)serverID,
+                guildID = (long)guildID,
                 userID = (long)userID,
                 msgID = (long)messageID,
                 quoteText = quote,
@@ -37,9 +37,9 @@ namespace quoteblok2net
             return true;
         }
 
-        public bool Edit(ulong serverID, int index, string quote)
+        public bool Edit(ulong guildID, int index, string quote)
         {
-            IQuote quoteBuff = Get(serverID, index);
+            IQuote quoteBuff = Get(guildID, index);
             quoteBuff.quoteText = quote;
             return _db.ReplaceOne(x => x.quoteID == quoteBuff.quoteID, quoteBuff as QuoteMongoDB).IsAcknowledged;
         }
@@ -54,9 +54,9 @@ namespace quoteblok2net
             return _db.Find(x => x.quoteID == id).First();
         }
 
-        public IQuote Get(ulong serverID, int index)
+        public IQuote Get(ulong guildID, int index)
         {
-            return Get(_GetGuid(serverID, index));
+            return Get(_GetGuid(guildID, index));
         }
 
         public IQuote Get(ulong messageID)
@@ -69,9 +69,9 @@ namespace quoteblok2net
             return _db.Find(_ => true).ToEnumerable().Cast<IQuote>().ToList();
         }
 
-        public List<IQuote> GetAll(ulong serverID)
+        public List<IQuote> GetAll(ulong guildID)
         {
-            return _db.Find(x => x.serverID == (long)serverID).ToEnumerable().Cast<IQuote>().ToList();
+            return _db.Find(x => x.guildID == (long)guildID).ToEnumerable().Cast<IQuote>().ToList();
         }
 
         public int GetCount()
@@ -79,16 +79,16 @@ namespace quoteblok2net
             return (int)_db.EstimatedDocumentCount();
         }
 
-        public int GetCount(ulong serverID)
+        public int GetCount(ulong guildID)
         {
-            return (int)_db.CountDocuments(x => x.serverID == (long)serverID);
+            return (int)_db.CountDocuments(x => x.guildID == (long)guildID);
         }
 
-        public void Import(ulong serverID, ulong userID, ulong msgID)
+        public void Import(ulong guildID, ulong userID, ulong msgID)
         {
             var db = SQLiteConnector.GetInstance();
             db.Table<QuoteSQLite>().ToList().ForEach(x => {
-                Add((ulong)x.serverID,(ulong)x.userID,(ulong)x.msgID,x.quoteText);
+                Add((ulong)x.guildID,(ulong)x.userID,(ulong)x.msgID,x.quoteText);
             });
         }
 
@@ -97,9 +97,9 @@ namespace quoteblok2net
             return _db.DeleteOne(x => x.quoteID == id).IsAcknowledged;
         }
 
-        public bool Remove(ulong serverID, int index)
+        public bool Remove(ulong guildID, int index)
         {
-            return Remove(_GetGuid(serverID,index));
+            return Remove(_GetGuid(guildID,index));
         }
 
         public bool Remove(ulong messageID)
@@ -107,9 +107,9 @@ namespace quoteblok2net
             return Remove(_GetGuid(messageID));
         }
 
-        private Guid _GetGuid(ulong serverID, int index)
+        private Guid _GetGuid(ulong guildID, int index)
         {
-            return _db.Find(x => x.serverID == (long)serverID).Skip(index).Limit(1).First().quoteID;
+            return _db.Find(x => x.guildID == (long)guildID).Skip(index).Limit(1).First().quoteID;
         }
 
         private Guid _GetGuid(ulong messageID)

@@ -79,11 +79,11 @@ namespace quoteblok2net.modules
                 return;
             }
 
-            var serverID = Context.Guild.Id;
+            var guildID = Context.Guild.Id;
             var userID = Context.User.Id;
             var messageID = Context.Message.Id;
             
-            quoteManager.Add(serverID, userID, messageID, quote);
+            quoteManager.Add(guildID, userID, messageID, quote);
 
             await ReplyAsync($"Quote `{quote}` has been added.");
         }

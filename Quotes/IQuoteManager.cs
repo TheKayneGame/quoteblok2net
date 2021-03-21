@@ -15,12 +15,12 @@ namespace quoteblok2net.quotes
         /// <summary>
         /// 
         /// </summary>
-        /// <param name="serverID"></param>
+        /// <param name="guildID"></param>
         /// <param name="userID"></param>
         /// <param name="messageID"></param>
         /// <param name="quote"></param>
         /// <returns></returns>
-        public bool Add(ulong serverID, ulong userID, ulong messageID, string quote);
+        public bool Add(ulong guildID, ulong userID, ulong messageID, string quote);
 
 
         public bool Add(IQuote quote);
@@ -36,12 +36,12 @@ namespace quoteblok2net.quotes
 
 
         /// <summary>
-        /// Get Quote by serverID and index
+        /// Get Quote by guildID and index
         /// </summary>
-        /// <param name="serverID"></param>
+        /// <param name="guildID"></param>
         /// <param name="index"></param>
         /// <returns>Quote</returns>
-        public IQuote Get(ulong serverID, int index);
+        public IQuote Get(ulong guildID, int index);
 
         /// <summary>
         /// Get Quote By messageID
@@ -59,9 +59,9 @@ namespace quoteblok2net.quotes
         /// <summary>
         /// 
         /// </summary>
-        /// <param name="serverID"></param>
+        /// <param name="guildID"></param>
         /// <returns></returns>
-        public List<IQuote> GetAll(ulong serverID);
+        public List<IQuote> GetAll(ulong guildID);
 
         /// <summary>
         /// 
@@ -72,9 +72,9 @@ namespace quoteblok2net.quotes
         /// <summary>
         /// 
         /// </summary>
-        /// <param name="serverID"></param>
+        /// <param name="guildID"></param>
         /// <returns></returns>
-        public int GetCount(ulong serverID);
+        public int GetCount(ulong guildID);
 
         /*Update*/
 
@@ -84,12 +84,12 @@ namespace quoteblok2net.quotes
         /// <param name="id"></param>
         /// <param name="quote"></param>
         /// <returns></returns>
-        public bool Edit(ulong serverID,int index, string quote);
+        public bool Edit(ulong guildID,int index, string quote);
 
         /// <summary>
         /// 
         /// </summary>
-        /// <param name="serverID"></param>
+        /// <param name="guildID"></param>
         /// <param name="index"></param>
         /// <param name="quote"></param>
         /// <returns></returns>
@@ -107,10 +107,10 @@ namespace quoteblok2net.quotes
         /// <summary>
         /// 
         /// </summary>
-        /// <param name="serverID"></param>
+        /// <param name="guildID"></param>
         /// <param name="index"></param>
         /// <returns></returns>
-        public bool Remove (ulong serverID, int index);
+        public bool Remove (ulong guildID, int index);
 
         /// <summary>
         /// 
@@ -118,6 +118,6 @@ namespace quoteblok2net.quotes
         /// <param name="messageID"></param>
         /// <returns></returns>
         public bool Remove(ulong messageID);
-        public void Import(ulong serverID, ulong userID, ulong msgID);
+        public void Import(ulong guildID, ulong userID, ulong msgID);
     }
 }

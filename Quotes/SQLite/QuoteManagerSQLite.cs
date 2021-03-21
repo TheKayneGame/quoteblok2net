@@ -36,16 +36,16 @@ namespace quoteblok2net.quotes.SQLite
         /// <summary>
         /// 
         /// </summary>
-        /// <param name="serverID"></param>
+        /// <param name="guildID"></param>
         /// <param name="userID"></param>
         /// <param name="messageID"></param>
         /// <param name="quote"></param>
         /// <returns></returns>
-        public bool Add(ulong serverID, ulong userID, ulong messageID, string quote)
+        public bool Add(ulong guildID, ulong userID, ulong messageID, string quote)
         {
             QuoteSQLite quoteEntry = new QuoteSQLite() {
                 quoteID = Guid.NewGuid(),
-                serverID = (long)serverID,
+                guildID = (long)guildID,
                 userID = (long)userID,
                 msgID = (long)messageID,
                 quoteText = quote,
@@ -77,14 +77,14 @@ namespace quoteblok2net.quotes.SQLite
 
 
         /// <summary>
-        /// Get Quote by serverID and index
+        /// Get Quote by guildID and index
         /// </summary>
-        /// <param name="serverID"></param>
+        /// <param name="guildID"></param>
         /// <param name="index"></param>
         /// <returns>Quote</returns>
-        public IQuote Get(ulong serverID, int index)
+        public IQuote Get(ulong guildID, int index)
         {
-            Guid id = _GetGuid(serverID, index);
+            Guid id = _GetGuid(guildID, index);
             return this.Get(id);
         }
 
@@ -111,12 +111,12 @@ namespace quoteblok2net.quotes.SQLite
         /// <summary>
         /// 
         /// </summary>
-        /// <param name="serverID"></param>
+        /// <param name="guildID"></param>
         /// <returns></returns>
-        public List<IQuote> GetAll(ulong serverID)
+        public List<IQuote> GetAll(ulong guildID)
         {
-            long id = (long) serverID;
-            return _db.Table<QuoteSQLite>().Where(t => t.serverID == id).Cast<IQuote>().ToList();
+            long id = (long) guildID;
+            return _db.Table<QuoteSQLite>().Where(t => t.guildID == id).Cast<IQuote>().ToList();
         }
 
         /// <summary>
@@ -131,12 +131,12 @@ namespace quoteblok2net.quotes.SQLite
         /// <summary>
         /// 
         /// </summary>
-        /// <param name="serverID"></param>
+        /// <param name="guildID"></param>
         /// <returns></returns>
-        public int GetCount(ulong serverID)
+        public int GetCount(ulong guildID)
         {
-            long id = (long) serverID;
-            return _db.Table<QuoteSQLite>().Count(t => t.serverID == id);
+            long id = (long) guildID;
+            return _db.Table<QuoteSQLite>().Count(t => t.guildID == id);
         }
 
         /*Update*/
@@ -147,9 +147,9 @@ namespace quoteblok2net.quotes.SQLite
         /// <param name="id"></param>
         /// <param name="quote"></param>
         /// <returns></returns>
-        public bool Edit(ulong serverID,int index, string quote)
+        public bool Edit(ulong guildID,int index, string quote)
         {
-            IQuote quoteBuff = Get(serverID, index);
+            IQuote quoteBuff = Get(guildID, index);
             quoteBuff.quoteText = quote;
             return _db.Update(quoteBuff) > 0;
         }
@@ -174,12 +174,12 @@ namespace quoteblok2net.quotes.SQLite
         /// <summary>
         /// 
         /// </summary>
-        /// <param name="serverID"></param>
+        /// <param name="guildID"></param>
         /// <param name="index"></param>
         /// <returns></returns>
-        public bool Remove (ulong serverID, int index)
+        public bool Remove (ulong guildID, int index)
         {
-            Guid id = _GetGuid(serverID, index);
+            Guid id = _GetGuid(guildID, index);
             return this.Remove(id);
         }
 
@@ -193,14 +193,14 @@ namespace quoteblok2net.quotes.SQLite
             Guid id = _GetGuid(messageID);
             return this.Remove(id);
         }
-        public void Import(ulong serverID, ulong userID, ulong msgID)
+        public void Import(ulong guildID, ulong userID, ulong msgID)
         {
             try {
-                System.IO.StreamReader file = new System.IO.StreamReader($"{serverID}");
+                System.IO.StreamReader file = new System.IO.StreamReader($"{guildID}");
                 string line = "";
                 while((line = file.ReadLine()) != null)  
                 {  
-                    this.Add(serverID, userID, msgID, line);
+                    this.Add(guildID, userID, msgID, line);
                 }
             } catch (Exception e){
                 Console.WriteLine(e);
@@ -209,9 +209,9 @@ namespace quoteblok2net.quotes.SQLite
             
         }
 
-        private Guid _GetGuid(ulong serverID, int index)
+        private Guid _GetGuid(ulong guildID, int index)
         {
-            return _db.FindWithQuery<QuoteSQLite>("SELECT * FROM quotes WHERE server_id = ? LIMIT ?,1", (long)serverID, index).quoteID;
+            return _db.FindWithQuery<QuoteSQLite>("SELECT * FROM quotes WHERE server_id = ? LIMIT ?,1", (long)guildID, index).quoteID;
         }
 
         private Guid _GetGuid(ulong messageID)
