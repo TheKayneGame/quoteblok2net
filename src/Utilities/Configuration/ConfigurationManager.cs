@@ -3,7 +3,7 @@ using System.IO;
 using System.Text;
 using Newtonsoft.Json;
 
-namespace quoteblok2net.BotSystem
+namespace quoteblok2net.Utilities.Configs
 {
     public static class ConfigManager
     {

@@ -1,6 +1,6 @@
 using System;
 
-namespace quoteblok2net.BotSystem
+namespace quoteblok2net.Utilities.Configs
 {
 
     public class Config
