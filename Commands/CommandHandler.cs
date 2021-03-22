@@ -18,7 +18,7 @@ namespace quoteblok2net
 
         private IServiceProvider _services;
 
-        private GuildSettingsManager _guildSettingsManager = GuildSettingsManager.GetInstance();
+        private GuildSettingsManager _guildSettingsManager;
 
         public  CommandHandler(DiscordSocketClient client)
         {
@@ -32,6 +32,7 @@ namespace quoteblok2net
                 .AddSingleton(new InteractivityService(_client, TimeSpan.FromSeconds(20), false))
                 .AddSingleton<CommandService>()
                 .AddSingleton<IQuoteManager>(new QuoteManagerMongoDB())
+                .AddSingleton<GuildSettingsManager>(new GuildSettingsManager())
                 .BuildServiceProvider();
 
             _commands = new CommandService();
@@ -40,6 +41,7 @@ namespace quoteblok2net
                 services: _services);
             
             _client.MessageReceived += HandleCommandAsync;
+            _guildSettingsManager = (GuildSettingsManager)_services.GetService(typeof(GuildSettingsManager));
         }
 
         

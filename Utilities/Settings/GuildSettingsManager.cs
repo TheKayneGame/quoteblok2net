@@ -12,7 +12,7 @@ namespace quoteblok2net.Utilities.Settings.Guild
         private Dictionary<long, DateTime> _timeCache = new Dictionary<long, DateTime>();
         private IMongoCollection<GuildSettings> _db;
 
-        GuildSettingsManager()
+        public GuildSettingsManager()
         {
             _db = MongoConnector.GetDatabaseInstance().GetCollection<GuildSettings>("server_settings");
         }
