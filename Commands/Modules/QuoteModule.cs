@@ -8,23 +8,23 @@ using Interactivity.Pagination;
 using System;
 using Discord;
 
-namespace quoteblok2net
+namespace quoteblok2net.modules
 {
 
     [Group("quote")]
     public class QuoteModule : ModuleBase<SocketCommandContext>
     {
-        private QuoteManager _quoteManager = QuoteManager.GetInstance();
+        public IQuoteManager quoteManager { get; set; }
         public CommandService CommandService { get; set; }
         public InteractivityService Interactivity { get; set; }
 
         [Command("echo")]
-        [Summary("Fuck")]
+        [Summary("Echoes Message")]
         public async Task Ping([Remainder] string quote)
         {
             var conMsg = Context.Message;
             if (conMsg.MentionedChannels.Count + conMsg.MentionedRoles.Count + conMsg.MentionedUsers.Count > 0|| conMsg.MentionedEveryone){
-                await ReplyAsync("Ga geen mensen lastig vallen");
+                await ReplyAsync("Mentions are not allowed in quotes.");
                 return;
             }
             
@@ -35,7 +35,7 @@ namespace quoteblok2net
         }
 
         [Command("help")]
-        [Summary("Hulplijst")]
+        [Summary("Lists commands")]
         public async Task Help()
         {     
             EmbedBuilder embedBuilder = new EmbedBuilder();
@@ -59,27 +59,33 @@ namespace quoteblok2net
                 embedBuilder.AddField(embedNameText, embedFieldText);
             }
 
-            await ReplyAsync("Hier is een Commando lijst: ", false, embedBuilder.Build());
+            await ReplyAsync("Command List: ", false, embedBuilder.Build());
         }
 
         //Create
         [Command("add")]
-        [Summary("Voeg Citaat Toe")]
+        [Summary("Adds quote")]
         public async Task QuoteAdd([Remainder] string quote)
         {  
             var conMsg = Context.Message;
-            if (conMsg.MentionedChannels.Count + conMsg.MentionedRoles.Count + conMsg.MentionedUsers.Count > 0|| conMsg.MentionedEveryone){
-                await ReplyAsync("Ga geen mensen lastig vallen");
+            if (conMsg.MentionedChannels.Count + conMsg.MentionedRoles.Count + conMsg.MentionedUsers.Count > 0 || conMsg.MentionedEveryone){
+                await ReplyAsync("Mentions are not allowed in quotes.");
                 return;
             }
 
-            var serverID = Context.Guild.Id;
+            if (conMsg.Content.Length > 500) 
+            {
+                await ReplyAsync("Quote can't be longer than 500 characters.");
+                return;
+            }
+
+            var guildID = Context.Guild.Id;
             var userID = Context.User.Id;
             var messageID = Context.Message.Id;
             
-            _quoteManager.Add(serverID, userID, messageID, quote);
+            quoteManager.Add(guildID, userID, messageID, quote);
 
-            await ReplyAsync($"Quote `{quote}` is Toegevoegd");
+            await ReplyAsync($"Quote `{quote}` has been added.");
         }
 
         //Read
@@ -87,45 +93,45 @@ namespace quoteblok2net
         [Command("get")]
         [Alias("")]
         [Priority(-10)]
-        [Summary("Roep willekeurige citaat op")]
+        [Summary("Get random quote")]
         public async Task QuoteGet()
         {
-            int index = new Random().Next(_quoteManager.GetCount(Context.Guild.Id));
-            string quote = index + ". " + _quoteManager.Get(Context.Guild.Id, index).quote;
+            int index = new Random().Next(quoteManager.GetCount(Context.Guild.Id));
+            string quote = index + ". " + quoteManager.Get(Context.Guild.Id, index).quoteText;
             await ReplyAsync(quote);
         }
 
         [Command("get")]
-        [Summary("Roep citaat op")]
+        [Summary("Get specific quote")]
         public async Task QuoteGet(int index)
         {
-            if (index > _quoteManager.GetCount(Context.Guild.Id))
+            if (index > quoteManager.GetCount(Context.Guild.Id))
             {
-                await ReplyAsync("Ongeldig Getal");
+                await ReplyAsync("Invalid number.");
                 return;
             }
-            string quote = index + ". " + _quoteManager.Get(Context.Guild.Id, index).quote;
+            string quote = index + ". " + quoteManager.Get(Context.Guild.Id, index).quoteText;
             await ReplyAsync(quote);
         }
 
         [Command("list", RunMode = RunMode.Async)]
-        [Summary("Krijg lijst van citaten")]
+        [Summary("List quotes")]
         public async Task QuoteList()
         {
-            List<Quote> quotes = _quoteManager.GetAll(Context.Guild.Id);
+            List<IQuote> quotes = quoteManager.GetAll(Context.Guild.Id);
             List<PageBuilder> pagedQuoteBuff = new List<PageBuilder>();
 
             int i = 0;
 
             if (quotes.Count < 1)
             {
-                await ReplyAsync("Geen Citaten Opgeslagen");
+                await ReplyAsync("No saved quotes.");
                 return;
             }
             string messageBuff = "";
             quotes.ForEach(q =>
             {
-                string quoteBuff = i++ + ". " + q.quote + '\n';
+                string quoteBuff = i++ + ". " + q.quoteText + '\n';
                 messageBuff += quoteBuff;
                 if (messageBuff.Length > 1000)
                 {
@@ -150,25 +156,25 @@ namespace quoteblok2net
 
         //Update
         [Command("edit")]
-        [Summary("Verander citaat als beheerder (Omzijlt Controle)")]
+        [Summary("Edit quote as admin (Bypasses check)")]
         [RequireUserPermission(Discord.ChannelPermission.ManageMessages)]
         public async Task QuoteEditAdmin(int index, [Remainder]string quote)
         {
-            _quoteManager.Edit(Context.Guild.Id, index,quote);
-            await ReplyAsync("Citaat bijgewerkt");
+            quoteManager.Edit(Context.Guild.Id, index,quote);
+            await ReplyAsync("Quote Edited.");
         }
 
         [Command("edit")]
-        [Summary("Verander een van jouw citaten")]
+        [Summary("Change quote")]
         public async Task QuoteEdit(int index, [Remainder]string quote)
         {
-             if (_quoteManager.Get(Context.Guild.Id, index).userID != (long)Context.User.Id)
+             if (quoteManager.Get(Context.Guild.Id, index).userID != (long)Context.User.Id)
             {
-                await ReplyAsync("Dit is niet jouw Citaat");
+                await ReplyAsync("This is not your quote.");
                 return;
             }
-            _quoteManager.Edit(Context.Guild.Id, index,quote);
-            await ReplyAsync("Citaat bijgewerkt");
+            quoteManager.Edit(Context.Guild.Id, index,quote);
+            await ReplyAsync("Quote Edited.");
         }
 
 
@@ -176,28 +182,29 @@ namespace quoteblok2net
 
         [Command("remove", RunMode = RunMode.Async)]
         [RequireUserPermission(Discord.ChannelPermission.ManageMessages)]
-        [Summary("Verwijder citaat als beheerder (Omzijlt Controle)")]
+        [Summary("Delete quote as admin (Bypasses check)")]
         public async Task QuoteRemoveAdmin(int index)
         {
             await _QuoteRemove(index);
         }
 
         [Command("remove", RunMode = RunMode.Async)]
-        [Summary("Verwijder een van jouw citaten")]
+        [Summary("Delete quote")]
         public async Task QuoteRemove(int index)
         {
-            if (_quoteManager.Get(Context.Guild.Id, index).userID != (long)Context.User.Id)
+            if (quoteManager.Get(Context.Guild.Id, index).userID != (long)Context.User.Id)
             {
-                await ReplyAsync("Dit is niet jouw Citaat");
+                await ReplyAsync("This is not your quote.");
                 return;
             }
             await _QuoteRemove(index);
+            await ReplyAsync("Quote deleted.");
         }
 
         private async Task _QuoteRemove(int index)
         {
             var request = new ConfirmationBuilder()
-                .WithContent(new PageBuilder().WithText("Bevestig"))
+                .WithContent(new PageBuilder().WithText("Confirm"))
                 .WithUsers(Context.User)
                 .Build();
 
@@ -205,27 +212,27 @@ namespace quoteblok2net
 
             if (result.Value == true)
             {
-                await Context.Channel.SendMessageAsync("Bevestigd :thumbsup:!");
-                _quoteManager.Remove(Context.Guild.Id, index);
+                await Context.Channel.SendMessageAsync("Confirmed :thumbsup:!");
+                quoteManager.Remove(Context.Guild.Id, index);
             }
             else
             {
-                await Context.Channel.SendMessageAsync("Afgewezen :thumbsup:!");
+                await Context.Channel.SendMessageAsync("Canceled :thumbsup:!");
             }
         }
 
         [Command("allcount")]
-        [Summary("Hoeveel Totale Citaten")]
+        [RequireOwner]
         public async Task QuoteAllCount()
         {
-            await ReplyAsync(_quoteManager.GetCount().ToString());
+            await ReplyAsync(quoteManager.GetCount().ToString());
         }
 
         [Command("import")]
         [RequireOwner]
         public async Task QuoteImport()
         {
-            _quoteManager.Import(Context.Guild.Id, Context.User.Id, Context.Message.Id);
+            quoteManager.Import(Context.Guild.Id, Context.User.Id, Context.Message.Id);
             await ReplyAsync("Geimporteerd");
         }
 

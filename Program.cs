@@ -4,18 +4,10 @@ using System.Threading;
 using System.Threading.Tasks;
 using Discord;
 using Discord.WebSocket;
+using quoteblok2net.Utilities.Configs;
 
 namespace quoteblok2net
 {
-    // This is a minimal, bare-bones example of using Discord.Net
-    //
-    // If writing a bot with commands, we recommend using the Discord.Net.Commands
-    // framework, rather than handling commands yourself, like we do in this sample.
-    //
-    // You can find samples of using the command framework:
-    // - Here, under the 02_commands_framework sample
-    // - https://github.com/foxbot/DiscordBotBase - a bare-bones bot template
-    // - https://github.com/foxbot/patek - a more feature-filled bot, utilizing more aspects of the library
     class Program
     {
         private DiscordSocketClient _client;
@@ -23,8 +15,7 @@ namespace quoteblok2net
         private CommandHandler _commandHandler;
         
 
-        // Discord.Net heavily utilizes TAP for async, so we create
-        // an asynchronous context from the beginning.
+
         static void Main(string[] args)
         {
             new Program().MainAsync().GetAwaiter().GetResult();
@@ -32,17 +23,12 @@ namespace quoteblok2net
 
         public Program()
         {
-            // It is recommended to Dispose of a client when you are finished
-            // using it, at the end of your app's lifetime.
-            
-            
-            
-            //_client.MessageReceived += MessageReceivedAsync;
+
         }
 
         public async Task MainAsync()
         {
-            var token = File.ReadAllText("token.ignore");
+            var token = ConfigManager.config.token;
             _client = new DiscordSocketClient();
 
             _client.Log += LogAsync;
