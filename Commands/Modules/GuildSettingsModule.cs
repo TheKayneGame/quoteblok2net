@@ -24,7 +24,7 @@ namespace quoteblok2net.Commands.Modules
             {
                 long guildID = (long)Context.Guild.Id;
                 guildSettingsManager.SetGuildPrefix(guildID, prefix);
-                await ReplyAsync($"Set this server's prefix to {prefix}");
+                await ReplyAsync($"Set this server's prefix to `{prefix}`");
             }
         }
     }
