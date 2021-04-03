@@ -23,7 +23,6 @@ namespace quoteblok2net
         public  CommandHandler(DiscordSocketClient client)
         {
 		    _client = client;
-
         }
 
         public async Task Initialise() {

@@ -28,7 +28,7 @@ namespace quoteblok2net.modules
                 return;
             }
             
-            string msgBuf = quote;
+            string msgBuf = $"`{quote}`";
 
             await ReplyAsync(msgBuf);
 
