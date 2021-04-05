@@ -7,10 +7,10 @@ using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
 
-namespace quoteblok2net.RoleMenu
+namespace quoteblok2net.RoleMenus
 {
     class ReactionHandler
-    {
+    {/*
         private DiscordSocketClient _client;
         private IServiceProvider _services;
         public ReactionHandler(DiscordSocketClient client)
@@ -33,6 +33,6 @@ namespace quoteblok2net.RoleMenu
         public async Task ReactionAdded(Cacheable<IUserMessage, UInt64> message, ISocketMessageChannel channel, SocketReaction reaction)
         {
 
-        }
+        }*/
     }
 }

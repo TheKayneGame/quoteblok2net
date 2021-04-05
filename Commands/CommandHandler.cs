@@ -31,7 +31,7 @@ namespace quoteblok2net
                 .AddSingleton(new InteractivityService(_client, TimeSpan.FromSeconds(20), false))
                 .AddSingleton<CommandService>()
                 .AddSingleton<IQuoteManager>(new QuoteManagerMongoDB())
-                .AddSingleton<GuildSettingsManager>(new GuildSettingsManager())
+                .AddSingleton(new GuildSettingsManager())
                 .BuildServiceProvider();
 
             _commands = new CommandService();
