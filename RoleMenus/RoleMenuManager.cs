@@ -20,26 +20,22 @@ namespace quoteblok2net.RoleMenus
 
         public static RoleMenuManager GetInstance()
         {
-            if (_instance == null)
-            {
-                _instance = new RoleMenuManager();
-            }
-            return _instance;
+            return _instance ??= new RoleMenuManager();
         }
         public RoleMenuManager()
         {
             _db = MongoConnector.GetDatabaseInstance().GetCollection<RoleMenu>("role_menus");
         }
 
-        public bool Create(ulong guildID, ulong userID, ulong messageID, string text)
+        public bool Create(ulong guildId, ulong userId, ulong messageId, string text)
         {
 
             RoleMenu roleMenu = new RoleMenu() { 
-                guildID = (long)guildID, 
-                userID = (long)userID, 
-                messageID = (long)messageID, 
-                text = text, 
-                date = DateTime.UtcNow};
+                GuildId = (long)guildId, 
+                UserId = (long)userId, 
+                MessageId = (long)messageId, 
+                Text = text, 
+                Date = DateTime.UtcNow};
             return Create(roleMenu);
         }
 
@@ -49,70 +45,68 @@ namespace quoteblok2net.RoleMenus
             return true;
         }
 
-        public RoleMenu AddBinding(ulong messageID, EmojiRoleBinding emojiRoleBinding)
+        public RoleMenu AddBinding(ulong messageId, EmoteRoleBinding emoteRoleBinding)
         {
-            RoleMenu roleMenu = GetRoleMenu((long)messageID);
-            roleMenu.emojiRoleBindings.Add(emojiRoleBinding);
-            UpdateRoleMenu(messageID, roleMenu);
+            RoleMenu roleMenu = GetRoleMenu((long)messageId);
+
+            if (!roleMenu.AddRoleBinding(emoteRoleBinding))
+                return null;
+            UpdateRoleMenu(messageId, roleMenu);
             return roleMenu;
 
         }
 
-        public void UpdateRoleMenu(ulong messageID, RoleMenu roleMenu)
+        public void UpdateRoleMenu(ulong messageId, RoleMenu roleMenu)
         {
-            DropCacheRoleMenu(messageID);
-            _db.ReplaceOne(x => x.messageID == (long)messageID, roleMenu);
+            DropCacheRoleMenu(messageId);
+            _db.ReplaceOne(x => x.MessageId == (long)messageId, roleMenu);
 
         }
         
         public void UpdateRoleMenuMessage(IUserMessage userMessage, RoleMenu roleMenu)
         {
-            userMessage.ModifyAsync(msg => msg.Content = roleMenu.getText());
-            roleMenu.emojiRoleBindings.ForEach(x =>
-            {
-                userMessage.AddReactionAsync(x.emote);
-            });
+            
         }
 
-        public bool IsRoleMenu(ulong messageID)
+        public bool IsRoleMenu(ulong messageId)
         {
-            return _db.Find(x => x.messageID == (long)messageID).CountDocuments() > 0;
+            return _db.Find(x => x.MessageId == (long)messageId).CountDocuments() > 0;
         }
 
-        public RoleMenu GetRoleMenu(long messageID)
+        public RoleMenu GetRoleMenu(long messageId)
         {
-            ResetCacheTimer(messageID);
-            return _roleMenuCache.ContainsKey(messageID) ? _roleMenuCache[messageID] : CacheRoleMenu(messageID);
+            ResetCacheTimer(messageId);
+            return _roleMenuCache.ContainsKey(messageId) ? _roleMenuCache[messageId] : CacheRoleMenu(messageId);
         }
 
-        private void ResetCacheTimer(long messageID)
+        private void ResetCacheTimer(long messageId)
         {
-            _timeCache[messageID] = DateTime.UtcNow;
+            _timeCache[messageId] = DateTime.UtcNow;
         }
 
 
 
-        private RoleMenu CacheRoleMenu(long messageID)
+        private RoleMenu CacheRoleMenu(long messageId)
         {
             RoleMenu settings;
-            var mongoResult = _db.Find(x => x.messageID == messageID);
+            var mongoResult = _db.Find(x => x.MessageId == messageId);
 
             if (mongoResult.CountDocuments() > 0)
             {
                 settings = mongoResult.First();
                 lock (_roleMenuCache)
                 {
-                    _roleMenuCache.Add(messageID, settings);
-                    _timeCache[messageID] = DateTime.UtcNow;
+                    _roleMenuCache.Add(messageId, settings);
+                    _timeCache[messageId] = DateTime.UtcNow;
                 }
                 return settings;
             }
             return null;       
         }
 
-        private bool DropCacheRoleMenu(ulong messageID)
+        private bool DropCacheRoleMenu(ulong messageId)
         {
-            return _roleMenuCache.Remove((long)messageID) && _timeCache.Remove((long)messageID);
+            return _roleMenuCache.Remove((long)messageId) && _timeCache.Remove((long)messageId);
 
         }
     }

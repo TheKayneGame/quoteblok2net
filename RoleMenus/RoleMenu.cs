@@ -5,41 +5,63 @@ using System.Collections.Generic;
 using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
+using MongoDB.Bson.Serialization.Attributes;
 
 namespace quoteblok2net.RoleMenus
 {
     public class RoleMenu
     {
-        public ObjectId id;
-        public long guildID;
-        public long userID;
-        public long messageID;
-        public string text;
-        public DateTime date;
-        public List<EmojiRoleBinding> emojiRoleBindings = new List<EmojiRoleBinding>();
-        
-        public string getText()
+        [BsonId]
+        [BsonRepresentation(BsonType.ObjectId)]
+        public ObjectId Id { get; set; }
+
+        public long GuildId { get; set; }
+
+        public long UserId { get; set; }
+
+        public long MessageId { get; set; }
+
+        public string Text { get; set; }
+
+        public DateTime Date { get;  set; }
+
+        public List<EmoteRoleBinding> EmoteRoleBindings { get; }
+
+        public RoleMenu()
         {
-            string result = $"{text}";
-            emojiRoleBindings.ForEach( x =>
+            EmoteRoleBindings = new List<EmoteRoleBinding>();
+        }
+
+        public string GetText()
+        {
+            string result = $"{Text}";
+            EmoteRoleBindings.ForEach( x =>
             {
-                result += $"\n{x.emote.Name}: `{x.name}`";
+                result += $"\n{x.Emote.Name}: `{x.Name}`";
             });
             return result;
         }
+
+        public bool AddRoleBinding(EmoteRoleBinding binding)
+        {
+            if (EmoteRoleBindings.Exists(x => x.Emote.Equals(binding.Emote)))
+                return false;
+            EmoteRoleBindings.Add(binding);
+            return true;
+        }
     }
 
-    public class EmojiRoleBinding
+    public class EmoteRoleBinding
     {
-        public string name;
-        public IEmote emote;
-        public long roleID;
+        public string Name;
+        public IEmote Emote;
+        public long RoleId;
 
-        public EmojiRoleBinding(string name, IEmote emote, long roleID)
+        public EmoteRoleBinding(string name, IEmote emote, long roleId)
         {
-            this.name = name;
-            this.emote = emote;
-            this.roleID = roleID;
+            this.Name = name;
+            this.Emote = emote;
+            this.RoleId = roleId;
         }
     }
 }

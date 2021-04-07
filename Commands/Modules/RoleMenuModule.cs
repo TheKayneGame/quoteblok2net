@@ -39,8 +39,9 @@ namespace quoteblok2net.Commands.Modules
         }
 
         [Command("addbinding", RunMode = RunMode.Async)]
-        public async Task AddBinding(IRole role, [Remainder] string text)
+        public async Task AddBinding(IRole role,[Remainder] string text)
         {
+            
             IUserMessage menuMessage = Context.Message.ReferencedMessage;
             IMessageChannel channel = Context.Channel;
 
@@ -56,24 +57,38 @@ namespace quoteblok2net.Commands.Modules
                 $"This Message will timeout in {Interactivity.DefaultTimeout.TotalSeconds.ToString()} seconds.";
 
             IUserMessage message = await channel.SendMessageAsync(messageText);
-
+            
             var result = await Interactivity.NextReactionAsync((x =>
                 x.MessageId == message.Id && x.UserId == Context.User.Id
                 ));
+            
+            Interactivity.DelayedDeleteMessageAsync(message, TimeSpan.FromSeconds(5));
+
 
             if (result.Value == null)
             {
                 string failedText = "Adding role to menu failed";
                 await message.ModifyAsync(msg => msg.Content = failedText);
+                return;
             }
-            else
+
+            try
             {
-                string successText = $"Added role `{role.Name}` to the menu with the text `{text}`";
-                RoleMenu roleMenu = roleMenuManager.AddBinding(menuMessage.Id, new EmojiRoleBinding(text, result.Value.Emote, (long)role.Id));
-                roleMenuManager.UpdateRoleMenuMessage(menuMessage, roleMenu);
-                await message.ModifyAsync(msg => msg.Content = successText);
+                await menuMessage.AddReactionAsync(result.Value.Emote);
             }
-            Interactivity.DelayedDeleteMessageAsync(message, TimeSpan.FromSeconds(5));
+            catch(Exception e)
+            {
+                String invalidEmoteText =
+                    $"`{result.Value.Emote.Name}` cannot be used as emote. It's probably an Emote from another server that I'm not in.";
+                Interactivity.DelayedSendMessageAndDeleteAsync(Context.Channel, text: invalidEmoteText);
+                return;
+            }
+
+            string successText = $"Added role `{role.Name}` to the menu with the text `{text}`";
+            RoleMenu roleMenu = roleMenuManager.AddBinding(menuMessage.Id, new EmoteRoleBinding(text, result.Value.Emote, (long)role.Id));
+            await menuMessage.ModifyAsync(msg => msg.Content = roleMenu.GetText());
+
+            await message.ModifyAsync(msg => msg.Content = successText);
 
         }
 

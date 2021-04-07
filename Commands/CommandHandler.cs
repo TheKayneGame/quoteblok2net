@@ -28,7 +28,7 @@ namespace quoteblok2net
         public async Task Initialise() {
             _services = new ServiceCollection()
                 .AddSingleton(_client)
-                .AddSingleton(new InteractivityService(_client, TimeSpan.FromSeconds(20), false))
+                .AddSingleton(new InteractivityService(_client, TimeSpan.FromSeconds(30), false))
                 .AddSingleton<CommandService>()
                 .AddSingleton<IQuoteManager>(new QuoteManagerMongoDB())
                 .AddSingleton(new GuildSettingsManager())
