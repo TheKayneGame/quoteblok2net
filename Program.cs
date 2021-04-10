@@ -4,7 +4,7 @@ using System.Threading;
 using System.Threading.Tasks;
 using Discord;
 using Discord.WebSocket;
-using quoteblok2net.Utilities.Configs;
+using quoteblok2net.BotSystem.Configuration;
 
 namespace quoteblok2net
 {

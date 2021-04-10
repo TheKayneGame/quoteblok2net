@@ -3,7 +3,7 @@ using System.Collections.Generic;
 using MongoDB.Driver;
 using quoteblok2net.database;
 
-namespace quoteblok2net.Utilities.Settings.Guild
+namespace quoteblok2net.BotSystem.Settings
 {
     public class GuildSettingsManager
     {

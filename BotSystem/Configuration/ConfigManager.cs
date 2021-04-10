@@ -1,9 +1,8 @@
 using System;
 using System.IO;
-using System.Text;
 using Newtonsoft.Json;
 
-namespace quoteblok2net.Utilities.Configs
+namespace quoteblok2net.BotSystem.Configuration
 {
     public static class ConfigManager
     {

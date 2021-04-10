@@ -25,7 +25,7 @@ namespace quoteblok2net.RoleMenus
 
         public DateTime Date { get;  set; }
 
-        public List<EmoteRoleBinding> EmoteRoleBindings { get; }
+        public List<EmoteRoleBinding> EmoteRoleBindings { get; set; }
 
         public RoleMenu()
         {
@@ -37,14 +37,14 @@ namespace quoteblok2net.RoleMenus
             string result = $"{Text}";
             EmoteRoleBindings.ForEach( x =>
             {
-                result += $"\n{x.Emote.Name}: `{x.Name}`";
+                result += $"\n{x.Emote} : `{x.Name}`";
             });
             return result;
         }
 
         public bool AddRoleBinding(EmoteRoleBinding binding)
         {
-            if (EmoteRoleBindings.Exists(x => x.Emote.Equals(binding.Emote)))
+            if (EmoteRoleBindings.Exists(x => x.Emote.Equals(binding.Emote.ToString())))
                 return false;
             EmoteRoleBindings.Add(binding);
             return true;
@@ -54,10 +54,12 @@ namespace quoteblok2net.RoleMenus
     public class EmoteRoleBinding
     {
         public string Name;
-        public IEmote Emote;
+
+        public string Emote;
+
         public long RoleId;
 
-        public EmoteRoleBinding(string name, IEmote emote, long roleId)
+        public EmoteRoleBinding(string name, string emote, long roleId)
         {
             this.Name = name;
             this.Emote = emote;

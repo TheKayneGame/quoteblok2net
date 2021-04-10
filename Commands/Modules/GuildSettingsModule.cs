@@ -1,10 +1,10 @@
 ﻿using Discord.Commands;
-using quoteblok2net.Utilities.Settings.Guild;
 using System;
 using System.Collections.Generic;
 using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
+using quoteblok2net.BotSystem.Settings;
 
 namespace quoteblok2net.Commands.Modules
 {

@@ -1,9 +1,9 @@
+using System;
 using MongoDB.Bson;
 using MongoDB.Bson.Serialization.Attributes;
-using quoteblok2net.Utilities.Configs;
-using System;
+using quoteblok2net.BotSystem.Configuration;
 
-namespace quoteblok2net.Utilities.Settings.Guild
+namespace quoteblok2net.BotSystem.Settings
 {
     public class GuildSettings
     {

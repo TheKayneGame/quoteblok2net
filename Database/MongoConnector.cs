@@ -1,7 +1,7 @@
 using System;
 using MongoDB.Bson;
 using MongoDB.Driver;
-using quoteblok2net.Utilities.Configs;
+using quoteblok2net.BotSystem.Configuration;
 
 namespace quoteblok2net.database
 {

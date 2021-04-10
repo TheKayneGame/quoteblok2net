@@ -5,8 +5,8 @@ using Discord.Commands;
 using Discord.WebSocket;
 using Interactivity;
 using Microsoft.Extensions.DependencyInjection;
+using quoteblok2net.BotSystem.Settings;
 using quoteblok2net.quotes;
-using quoteblok2net.Utilities.Settings.Guild;
 
 namespace quoteblok2net
 {
@@ -43,7 +43,6 @@ namespace quoteblok2net
             _guildSettingsManager = (GuildSettingsManager)_services.GetService(typeof(GuildSettingsManager));
         }
 
-        
         private async Task HandleCommandAsync(SocketMessage sockMsg)
         {
             SocketUserMessage msg = sockMsg as SocketUserMessage;
