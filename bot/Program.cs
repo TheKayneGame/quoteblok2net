@@ -3,8 +3,14 @@ using System.IO;
 using System.Threading;
 using System.Threading.Tasks;
 using Discord;
+using Discord.Commands;
 using Discord.WebSocket;
+using Interactivity;
+using Microsoft.Extensions.DependencyInjection;
 using quoteblok2net.BotSystem.Configuration;
+using quoteblok2net.BotSystem.Settings;
+using quoteblok2net.quotes;
+using quoteblok2net.RoleMenus;
 
 namespace quoteblok2net
 {
@@ -13,8 +19,10 @@ namespace quoteblok2net
         private DiscordSocketClient _client;
 
         private CommandHandler _commandHandler;
-        
 
+        private ReactionHandler _reactionHandler;
+
+        private IServiceProvider _services;
 
         static void Main(string[] args)
         {
@@ -38,8 +46,18 @@ namespace quoteblok2net
             await _client.LoginAsync(TokenType.Bot, token);
             await _client.StartAsync();
 
-            _commandHandler = new CommandHandler(_client);
+            _services = new ServiceCollection()
+                .AddSingleton(_client)
+                .AddSingleton(new InteractivityService(_client, TimeSpan.FromSeconds(30), false))
+                .AddSingleton<CommandService>()
+                .AddSingleton<IQuoteManager>(new QuoteManagerMongoDB())
+                .AddSingleton(new GuildSettingsManager())
+                .BuildServiceProvider();
+
+            _commandHandler = new CommandHandler(_client, _services);
+            _reactionHandler = new ReactionHandler(_client, _services);
             await _commandHandler.Initialise();
+            await _reactionHandler.Initialise();
 
             // Block the program until it is closed.
             await Task.Delay(Timeout.Infinite);
@@ -55,7 +73,7 @@ namespace quoteblok2net
         // connection and it is now safe to access the cache.
         private Task ReadyAsync()
         {
-            Console.WriteLine($"{_client.CurrentUser} is connected!");
+            LogAsync(new LogMessage(LogSeverity.Info,"Gateway", $"{_client.CurrentUser} is connected!"));
 
             return Task.CompletedTask;
         }

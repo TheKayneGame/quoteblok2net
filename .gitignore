@@ -1,14 +1,1 @@
-/.vscode
-/Databases
-/bin
-/obj
-/packages-microsoft-prod.deb
-/token.ignore
-QuoteBlok2/380046436374675457.imported
-/QuoteBlok2
-/Deployment
-Deploy.sh
-maintoken.ignore
-config.json
-/.vs/quoteblok2net
-/.idea/.idea.quoteblok2net.dir/.idea
+web/blok2bot.web/obj/

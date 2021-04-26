@@ -49,6 +49,12 @@ namespace quoteblok2net.RoleMenus
             EmoteRoleBindings.Add(binding);
             return true;
         }
+
+        public EmoteRoleBinding GetBinding(IEmote emote)
+        {
+            return EmoteRoleBindings.FirstOrDefault(x => x.Emote == emote.ToString());
+
+        }
     }
 
     public class EmoteRoleBinding

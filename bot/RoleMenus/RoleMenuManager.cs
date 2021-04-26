@@ -28,7 +28,18 @@ namespace quoteblok2net.RoleMenus
 
         public RoleMenuManager()
         {
+            var options = new CreateIndexOptions
+            {
+                Name = "expireAfterSecondsIndex",
+                ExpireAfter = TimeSpan.MaxValue
+            };
+
+            var roleMenuKeysDefinitionBuilder = Builders<RoleMenu>.IndexKeys;
+            var indexModel = new CreateIndexModel<RoleMenu>(roleMenuKeysDefinitionBuilder.Ascending(x => x.MessageId));
+
             _db = MongoConnector.GetDatabaseInstance().GetCollection<RoleMenu>("role_menus");
+
+            _db.Indexes.CreateOne(indexModel);
 
             _policy.SlidingExpiration = TimeSpan.FromDays(7); //TODO Create Config
         }
@@ -86,6 +97,7 @@ namespace quoteblok2net.RoleMenus
                 roleMenu = _db.Find(x => x.MessageId == (long) messageId).First();
                 _roleMenuCache.Set(messageId.ToString(), roleMenu, _policy);
             }
+
 
             return roleMenu;
         }

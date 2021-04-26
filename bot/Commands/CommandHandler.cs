@@ -20,20 +20,13 @@ namespace quoteblok2net
 
         private GuildSettingsManager _guildSettingsManager;
 
-        public  CommandHandler(DiscordSocketClient client)
+        public  CommandHandler(DiscordSocketClient client, IServiceProvider service)
         {
 		    _client = client;
+            _services = service;
         }
 
         public async Task Initialise() {
-            _services = new ServiceCollection()
-                .AddSingleton(_client)
-                .AddSingleton(new InteractivityService(_client, TimeSpan.FromSeconds(30), false))
-                .AddSingleton<CommandService>()
-                .AddSingleton<IQuoteManager>(new QuoteManagerMongoDB())
-                .AddSingleton(new GuildSettingsManager())
-                .BuildServiceProvider();
-
             _commands = new CommandService();
             await _commands.AddModulesAsync(
                 assembly: Assembly.GetEntryAssembly(),

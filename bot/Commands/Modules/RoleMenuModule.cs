@@ -15,6 +15,11 @@ namespace quoteblok2net.Commands.Modules
         public CommandService CommandService { get; set; }
         public InteractivityService Interactivity { get; set; }
 
+        /// <summary>
+        /// 
+        /// </summary>
+        /// <param name="text"></param>
+        /// <returns></returns>
         [Command("create")]
         [RequireUserPermission(Discord.GuildPermission.ManageRoles)]
         public async Task CreateRoleMenu([Remainder] string text)
@@ -29,6 +34,12 @@ namespace quoteblok2net.Commands.Modules
             _roleMenuManager.Create(Context.Guild.Id, Context.User.Id, message.Id, text);
         }
 
+        /// <summary>
+        /// 
+        /// </summary>
+        /// <param name="role"></param>
+        /// <param name="text"></param>
+        /// <returns></returns>
         [Command("test", RunMode = RunMode.Async)]
         public async Task Test(IRole role, [Remainder] string text)
         {
@@ -39,6 +50,12 @@ namespace quoteblok2net.Commands.Modules
             await message.AddReactionAsync(result.Value.Emote);
         }
 
+        /// <summary>
+        /// 
+        /// </summary>
+        /// <param name="role"></param>
+        /// <param name="text"></param>
+        /// <returns></returns>
         [Command("addbinding", RunMode = RunMode.Async)]
         [RequireUserPermission(Discord.GuildPermission.ManageRoles)]
         public async Task AddBinding(IRole role,[Remainder] string text)
