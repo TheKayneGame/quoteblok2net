@@ -1,4 +1,5 @@
 <Project Sdk="Microsoft.NET.Sdk">
+  <RuntimeHostConfigurationOption Include="System.Globalization.Invariant" Value="true" />
   <PropertyGroup>
     <OutputType>Exe</OutputType>
     <TargetFramework>net5.0</TargetFramework>
