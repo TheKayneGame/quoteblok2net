@@ -1,0 +1,57 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<project version="4">
+  <component name="ContentModelStore">
+    <e p="C:\Users\Kayne\AppData\Local\JetBrains\Rider2020.3\extResources" t="IncludeRecursive" />
+    <e p="C:\Users\Kayne\AppData\Local\JetBrains\Rider2020.3\resharper-host\Local\Transient\Rider\v203\SolutionCaches\_.19.00" t="ExcludeRecursive" />
+    <e p="I:\S\Projects\quoteblok2net" t="IncludeRecursive">
+      <e p=".gitignore" t="Include" />
+      <e p="bin" t="ExcludeRecursive" />
+      <e p="config.json" t="Include" />
+      <e p="obj" t="ExcludeRecursive">
+        <e p="Debug" t="Include">
+          <e p="net5.0" t="Include">
+            <e p="quoteblok2net.AssemblyInfo.cs" t="Include" />
+          </e>
+        </e>
+      </e>
+      <e p="packages" t="ExcludeRecursive" />
+      <e p="quoteblok2net.csproj" t="IncludeRecursive" />
+      <e p="src" t="Include">
+        <e p="Commands" t="Include">
+          <e p="CommandHandler.cs" t="Include" />
+          <e p="Modules" t="Include">
+            <e p="QuoteModule.cs" t="Include" />
+          </e>
+        </e>
+        <e p="Database" t="Include">
+          <e p="MongoConnector.cs" t="Include" />
+          <e p="SQLiteConnector.cs" t="Include" />
+        </e>
+        <e p="default.json" t="Include" />
+        <e p="Program.cs" t="Include" />
+        <e p="Quotes" t="Include">
+          <e p="IQuote.cs" t="Include" />
+          <e p="IQuoteManager.cs" t="Include" />
+          <e p="MongoDB" t="Include">
+            <e p="QuoteManagerMongoDB.cs" t="Include" />
+            <e p="QuoteMongoDB.cs" t="Include" />
+          </e>
+          <e p="SQLite" t="Include">
+            <e p="QuoteManagerSQLite.cs" t="Include" />
+            <e p="QuoteSQLite.cs" t="Include" />
+          </e>
+        </e>
+        <e p="Utilities" t="Include">
+          <e p="Configuration" t="Include">
+            <e p="Config.cs" t="Include" />
+            <e p="ConfigurationManager.cs" t="Include" />
+          </e>
+          <e p="Settings" t="Include">
+            <e p="ServerSettings.cs" t="Include" />
+            <e p="ServerSettingsManager.cs" t="Include" />
+          </e>
+        </e>
+      </e>
+    </e>
+  </component>
+</project>

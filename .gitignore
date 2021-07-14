@@ -12,3 +12,11 @@ maintoken.ignore
 config.json
 /.vs/quoteblok2net
 /.idea/.idea.quoteblok2net.dir/.idea
+blok2bot.web/bin/
+blok2bot.web/obj/
+bot/bin/Debug/net5.0/Discord.Net.Commands.dll
+bot/bin/
+bot/obj/
+web/blok2bot.web/bin/
+web/blok2bot.web/obj/blok2bot.web.csproj.nuget.g.targets
+web/blok2bot.web/obj/
