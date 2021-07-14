@@ -7,6 +7,7 @@ using System.Text;
 using System.Threading.Tasks;
 using MongoDB.Bson.Serialization.Attributes;
 
+
 namespace quoteblok2net.RoleMenus
 {
     public class RoleMenu
@@ -20,6 +21,8 @@ namespace quoteblok2net.RoleMenus
         public long UserId { get; set; }
 
         public long MessageId { get; set; }
+
+        public long ChannelId { get; set; }
 
         public string Text { get; set; }
 
@@ -55,6 +58,7 @@ namespace quoteblok2net.RoleMenus
         {
             return EmoteRoleBindings.FirstOrDefault(x => x.Emote == emote.ToString());
         }
+
     }
 
     public class EmoteRoleBinding

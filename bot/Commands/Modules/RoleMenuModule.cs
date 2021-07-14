@@ -11,7 +11,7 @@ namespace quoteblok2net.Commands.Modules
     [Group("rolemenu")]
     public class RoleMenuModule : ModuleBase<SocketCommandContext>
     {
-        readonly RoleMenuManager _roleMenuManager = RoleMenuManager.GetInstance();
+        public RoleMenuManager RoleMenuManager { get; set; }
         public CommandService CommandService { get; set; }
         public InteractivityService Interactivity { get; set; }
 
@@ -21,17 +21,17 @@ namespace quoteblok2net.Commands.Modules
         /// <param name="text"></param>
         /// <returns></returns>
         [Command("create")]
-        [RequireUserPermission(Discord.GuildPermission.ManageRoles)]
+        [RequireUserPermission(GuildPermission.ManageRoles)]
         public async Task CreateRoleMenu([Remainder] string text)
         {
             var conMsg = Context.Message;
             if (conMsg.MentionedChannels.Count + conMsg.MentionedRoles.Count + conMsg.MentionedUsers.Count > 0 || conMsg.MentionedEveryone)
             {
-                await ReplyAsync("Mentions are not allowed in text");
+                await ReplyAsync("Mentions are not allowed in command");
                 return;
             }
             IUserMessage message = await Context.Channel.SendMessageAsync(text);
-            _roleMenuManager.Create(Context.Guild.Id, Context.User.Id, message.Id, text);
+            RoleMenuManager.Create(Context.Guild.Id, Context.User.Id, message.Id, Context.Channel.Id, text);
         }
 
         /// <summary>
@@ -41,13 +41,11 @@ namespace quoteblok2net.Commands.Modules
         /// <param name="text"></param>
         /// <returns></returns>
         [Command("test", RunMode = RunMode.Async)]
-        public async Task Test(IRole role, [Remainder] string text)
+        [RequireOwner]
+        public async Task Test()
         {
-            var result = await Interactivity.NextReactionAsync((x =>
-                x.MessageId == Context.Message.Id
-                ));
-            IUserMessage message = await Context.Channel.SendMessageAsync(text);
-            await message.AddReactionAsync(result.Value.Emote);
+            IUserMessage menuMessage = Context.Message.ReferencedMessage;
+            RoleMenuManager.UpdateRoleMenuMessage(RoleMenuManager.GetRoleMenu(menuMessage.Id));
         }
 
         /// <summary>
@@ -57,14 +55,14 @@ namespace quoteblok2net.Commands.Modules
         /// <param name="text"></param>
         /// <returns></returns>
         [Command("addbinding", RunMode = RunMode.Async)]
-        [RequireUserPermission(Discord.GuildPermission.ManageRoles)]
+        [RequireUserPermission(GuildPermission.ManageRoles)]
         public async Task AddBinding(IRole role,[Remainder] string text)
         {
             
             IUserMessage menuMessage = Context.Message.ReferencedMessage;
             IMessageChannel channel = Context.Channel;
 
-            if (menuMessage == null || !_roleMenuManager.IsRoleMenu(menuMessage.Id))
+            if (menuMessage == null || !RoleMenuManager.IsRoleMenu(menuMessage.Id))
             {
                 const string noReferenced = "No Menu Referenced";
                 Interactivity.DelayedSendMessageAndDeleteAsync(channel, null, TimeSpan.FromSeconds(5), noReferenced);
@@ -77,21 +75,17 @@ namespace quoteblok2net.Commands.Modules
 
             IUserMessage message = await channel.SendMessageAsync(messageText);
          
-            var result = await Interactivity.NextReactionAsync(x =>
-            {
-                Console.WriteLine($"{x.MessageId} == {message.Id}; {x.UserId} == {Context.User.Id}");
-                return x.MessageId == message.Id && x.UserId == Context.User.Id;
-            }            
-                );
+            var result = await Interactivity.NextReactionAsync(x => x.MessageId == message.Id && x.UserId == Context.User.Id);
             
             Interactivity.DelayedDeleteMessageAsync(message, TimeSpan.FromSeconds(5));
+            Interactivity.DelayedDeleteMessageAsync(Context.Message, TimeSpan.FromSeconds(5));
 
             if (result.Value == null)
             {
                 const string failedText = "Adding role to menu failed";
                 await message.ModifyAsync(msg => msg.Content = failedText);
                 return;
-            }
+            }            
 
             if (!await menuMessage.TryAddReactionasync(result.Value.Emote))
             {
@@ -102,18 +96,22 @@ namespace quoteblok2net.Commands.Modules
             }
 
             string successText = $"Added role `{role.Name}` to the menu with the text `{text}`";
-            RoleMenu roleMenu = _roleMenuManager.AddBinding(menuMessage.Id, new EmoteRoleBinding(text, result.Value.Emote.ToString(), (long)role.Id));
+            RoleMenu roleMenu = RoleMenuManager.AddBinding(menuMessage.Id, new EmoteRoleBinding(text, result.Value.Emote.ToString(), (long)role.Id));
             if (roleMenu == null)
             {
                 return;
             }
-            await menuMessage.ModifyAsync(msg => msg.Content = roleMenu.GetText());
+            RoleMenuManager.UpdateRoleMenuMessage(roleMenu);
 
             await message.ModifyAsync(msg => msg.Content = successText);
 
         }
 
-
+        [Command("list", RunMode = RunMode.Async)]
+        public async Task ListMenus()
+        {
+            RoleMenuManager.GetGuildRoleMenus(Context.Guild.Id);
+        }
 
     }
 }

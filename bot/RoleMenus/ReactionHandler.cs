@@ -13,12 +13,12 @@ namespace quoteblok2net.RoleMenus
     {
         private readonly DiscordSocketClient _client;
         private IServiceProvider _services;
-        private RoleMenuManager menuManager;
+        private RoleMenuManager _menuManager;
         public ReactionHandler(DiscordSocketClient client, IServiceProvider service)
         {
             _client = client;
             _services = service;
-            menuManager = _services.GetService<RoleMenuManager>();
+            _menuManager = _services.GetService<RoleMenuManager>();
         }
 
         public void Initialise()
@@ -35,7 +35,7 @@ namespace quoteblok2net.RoleMenus
             if (message == null || !message.Author.IsBot)
                 return;
 
-            RoleMenu menu = menuManager.GetRoleMenu(message.Id);
+            RoleMenu menu = _menuManager.GetRoleMenu(message.Id);
             if (menu == null)
                 return;
 
@@ -56,7 +56,7 @@ namespace quoteblok2net.RoleMenus
             if (message == null || !message.Author.IsBot)
                 return;
 
-            RoleMenu menu = menuManager.GetRoleMenu(message.Id);
+            RoleMenu menu = _menuManager.GetRoleMenu(message.Id);
             if (menu == null)
                 return;
             EmoteRoleBinding emoteRoleBinding = menu.GetBinding(reaction.Emote);

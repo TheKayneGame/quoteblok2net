@@ -1,4 +1,5 @@
 ﻿using Discord;
+using Discord.WebSocket;
 using MongoDB.Driver;
 using quoteblok2net.database;
 using System;
@@ -10,7 +11,7 @@ using System.Threading.Tasks;
 
 namespace quoteblok2net.RoleMenus
 {
-    class RoleMenuManager
+    public class RoleMenuManager
     {
         private IMongoCollection<RoleMenu> _db;
 
@@ -19,15 +20,12 @@ namespace quoteblok2net.RoleMenus
 
         private CacheItemPolicy _policy = new CacheItemPolicy();
 
-        private static RoleMenuManager _instance;
+        private DiscordSocketClient _client;
 
-        public static RoleMenuManager GetInstance()
+        public RoleMenuManager(DiscordSocketClient client)
         {
-            return _instance ??= new RoleMenuManager();
-        }
+            _client = client;
 
-        public RoleMenuManager()
-        {
             var options = new CreateIndexOptions
             {
                 Name = "expireAfterSecondsIndex",
@@ -44,7 +42,7 @@ namespace quoteblok2net.RoleMenus
             _policy.SlidingExpiration = TimeSpan.FromDays(7); //TODO Create Config
         }
 
-        public bool Create(ulong guildId, ulong userId, ulong messageId, string text)
+        public bool Create(ulong guildId, ulong userId, ulong messageId, ulong channelId,string text)
         {
 
             RoleMenu roleMenu = new RoleMenu()
@@ -52,6 +50,7 @@ namespace quoteblok2net.RoleMenus
                 GuildId = (long) guildId,
                 UserId = (long) userId,
                 MessageId = (long) messageId,
+                ChannelId = (long) channelId,
                 Text = text,
                 Date = DateTime.UtcNow
             };
@@ -70,23 +69,36 @@ namespace quoteblok2net.RoleMenus
 
             if (!roleMenu.AddRoleBinding(emoteRoleBinding))
                 return null;
-            UpdateRoleMenu(messageId, roleMenu);
+            UpdateRoleMenu(roleMenu);
             return roleMenu;
 
         }
 
-        public void UpdateRoleMenu(ulong messageId, RoleMenu roleMenu)
+        public void UpdateRoleMenu(RoleMenu roleMenu)
         {
             
-            _db.ReplaceOne(x => x.MessageId == (long) messageId, roleMenu);
-            _roleMenuCache[messageId.ToString()] = roleMenu;
+            _db.ReplaceOne(x => x.MessageId == (long) roleMenu.MessageId, roleMenu);
+            _roleMenuCache[roleMenu.MessageId.ToString()] = roleMenu;
         }
 
+        public bool UpdateRoleMenuMessage(RoleMenu roleMenu)
+        {
+            SocketTextChannel channel = (_client.GetChannel((ulong)roleMenu.ChannelId) as SocketTextChannel);
+            IUserMessage message = (channel.GetMessageAsync((ulong)roleMenu.MessageId).Result as IUserMessage);
+            message.ModifyAsync(x => x.Content = roleMenu.GetText());
 
+            message.AddReactionsAsync(roleMenu.EmoteRoleBindings.Select(x => Emote.Parse(x.Emote)).ToArray());
+            return true;
+        }
 
         public bool IsRoleMenu(ulong messageId)
         {
             return _db.Find(x => x.MessageId == (long) messageId).CountDocuments() > 0;
+        }
+
+        public List<RoleMenu> GetGuildRoleMenus(ulong guildId)
+        {
+            return _db.Find(x => x.GuildId == (long)guildId).ToList();
         }
 
         public RoleMenu GetRoleMenu(ulong messageId)

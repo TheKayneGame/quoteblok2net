@@ -52,7 +52,7 @@ namespace quoteblok2net
                 .AddSingleton<CommandService>()
                 .AddSingleton<IQuoteManager>(new QuoteManagerMongoDB())
                 .AddSingleton(new GuildSettingsManager())
-                .AddSingleton(new RoleMenuManager())
+                .AddSingleton(new RoleMenuManager(_client))
                 .BuildServiceProvider();
 
             _commandHandler = new CommandHandler(_client, _services);
