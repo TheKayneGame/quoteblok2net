@@ -94,12 +94,16 @@ namespace quoteblok2net.RoleMenus
             RoleMenu roleMenu = _roleMenuCache[messageId.ToString()] as RoleMenu;
             if (roleMenu == null)
             {
-                roleMenu = _db.Find(x => x.MessageId == (long) messageId).First();
+                roleMenu = _db.Find(x => x.MessageId == (long) messageId).FirstOrDefault();
+                if (roleMenu == null)
+                    return null;
                 _roleMenuCache.Set(messageId.ToString(), roleMenu, _policy);
             }
 
 
             return roleMenu;
         }
+
+
     }
 }

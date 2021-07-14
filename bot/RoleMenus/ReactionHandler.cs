@@ -13,37 +13,56 @@ namespace quoteblok2net.RoleMenus
     {
         private readonly DiscordSocketClient _client;
         private IServiceProvider _services;
+        private RoleMenuManager menuManager;
         public ReactionHandler(DiscordSocketClient client, IServiceProvider service)
         {
             _client = client;
             _services = service;
+            menuManager = _services.GetService<RoleMenuManager>();
         }
 
-        public async Task Initialise()
+        public void Initialise()
         {
             
-            _client.ReactionAdded += HandleReactionAsync;
+            _client.ReactionAdded += HandleReactionAddedAsync;
+            _client.ReactionRemoved += HandleReactionRemovedAsync;
          
         }
-
-        public async Task HandleReactionAsync(Cacheable<IUserMessage, UInt64> cachedMessage, ISocketMessageChannel channel, SocketReaction reaction)
+        //TODO FIX DUPE CODE
+        public async Task HandleReactionAddedAsync(Cacheable<IUserMessage, UInt64> cachedMessage, ISocketMessageChannel channel, SocketReaction reaction)
         {
             IUserMessage message = await cachedMessage.GetOrDownloadAsync();
             if (message == null || !message.Author.IsBot)
                 return;
-            //TODO On add reaction, check if message is registered by bot. If so, get associated function.
-            //If Menu  then get menu and assign role according to Emote
 
-            RoleMenuManager menuManager = _services.GetService<RoleMenuManager>();
             RoleMenu menu = menuManager.GetRoleMenu(message.Id);
+            if (menu == null)
+                return;
+
             EmoteRoleBinding emoteRoleBinding = menu.GetBinding(reaction.Emote);
-            if (emoteRoleBinding != null)
+            if (emoteRoleBinding == null)
             {
-                await (message.Author as IGuildUser).AddRoleAsync((channel as SocketGuildChannel).Guild.GetRole((ulong)emoteRoleBinding.RoleId));
-                
+                await message.RemoveAllReactionsForEmoteAsync(reaction.Emote);
+                return;
             }
+                
+            await (reaction.User.Value as IGuildUser).AddRoleAsync((channel as SocketGuildChannel).Guild.GetRole((ulong)emoteRoleBinding.RoleId));
+        }
 
+        public async Task HandleReactionRemovedAsync(Cacheable<IUserMessage, UInt64> cachedMessage, ISocketMessageChannel channel, SocketReaction reaction)
+        {
+            
+            IUserMessage message = await cachedMessage.GetOrDownloadAsync();
+            if (message == null || !message.Author.IsBot)
+                return;
 
+            RoleMenu menu = menuManager.GetRoleMenu(message.Id);
+            if (menu == null)
+                return;
+            EmoteRoleBinding emoteRoleBinding = menu.GetBinding(reaction.Emote);
+            if (emoteRoleBinding == null)
+                return;
+            await (reaction.User.Value as IGuildUser).RemoveRoleAsync((channel as SocketGuildChannel).Guild.GetRole((ulong)emoteRoleBinding.RoleId));
         }
     }
 }

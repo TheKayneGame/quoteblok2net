@@ -1,0 +1,69 @@
+@page "/quotes/{guildID}"
+
+@using quoteblok2net.quotes;
+@using quoteblok2net;
+@inject IQuoteManager manager;
+@inject DiscordManager discordManager;
+
+
+@if (AllowedAccess)
+{
+    <h1>@guildName Quotes</h1>
+
+    <table class="table">
+        <thead>
+            <tr>
+                <th>Date</th>
+                <th>Quote</th>
+                <th></th>
+            </tr>
+        </thead>
+        <tbody>
+            @foreach (IQuote quote in Quotes)
+            {
+                <tr>
+                    <td>@quote.date</td>
+                    <td>@quote.quoteText</td>
+                    <td>
+                        <form action="/quotes/@quote.quoteID">
+                            <input class="btn btn-primary" type="submit" value="View" />
+                        </form>
+                    </td>
+                </tr>
+            }
+        </tbody>
+    </table>
+}
+else
+{
+    <h1>Not Authorised</h1>
+}
+
+
+
+<SurveyPrompt Title="How is Blazor working for you?" />
+
+@code {
+    [Parameter]
+    public string guildID { get; set; }
+
+    public string guildName { get; set; }
+
+    public List<IQuote> Quotes = new List<IQuote>();
+
+    public bool AllowedAccess = false;
+
+
+    protected override void OnInitialized()
+    {
+        var guilds = discordManager.GetGuilds();
+        if (guilds.Where(x => x.Id == guildID).Count() == 0)
+            return;
+        guildName = guilds.Where(x => x.Id == guildID).First().Name;
+        AllowedAccess = true;
+
+        Quotes = manager.GetAll(Convert.ToUInt64(guildID));
+        return;
+    }
+
+}

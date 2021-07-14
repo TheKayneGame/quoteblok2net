@@ -1,1 +1,6 @@
-web/blok2bot.web/obj/
+
+/web/blok2bot.web/obj/**
+blok2bot.web/bin/
+blok2bot.web/obj/blok2bot.web.csproj.nuget.dgspec.json
+blok2bot.web/obj/
+web/blok2bot.web/bin/

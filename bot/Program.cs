@@ -52,12 +52,13 @@ namespace quoteblok2net
                 .AddSingleton<CommandService>()
                 .AddSingleton<IQuoteManager>(new QuoteManagerMongoDB())
                 .AddSingleton(new GuildSettingsManager())
+                .AddSingleton(new RoleMenuManager())
                 .BuildServiceProvider();
 
             _commandHandler = new CommandHandler(_client, _services);
             _reactionHandler = new ReactionHandler(_client, _services);
             await _commandHandler.Initialise();
-            await _reactionHandler.Initialise();
+            _reactionHandler.Initialise();
 
             // Block the program until it is closed.
             await Task.Delay(Timeout.Infinite);

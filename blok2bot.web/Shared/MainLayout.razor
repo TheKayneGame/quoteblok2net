@@ -1,0 +1,34 @@
+﻿@inherits LayoutComponentBase
+
+<div class="page">
+    <div class="sidebar">
+        <NavMenu />
+    </div>
+
+    <div class="main">
+        <div class="top-row px-4">
+            <a href="https://github.com/TheKayneGame/" target="_blank">GitHub</a>
+
+            <AuthorizeView>
+                <Authorized>
+                    <NavLink class="nav-link" href="/profile">
+                        @context.User.Identity.Name
+                    </NavLink>
+                    <NavLink class="nav-link" href="auth/logout">
+                        Logout
+                    </NavLink>
+                </Authorized>
+                <NotAuthorized>
+                    <NavLink class="nav-link" href="auth/login">
+                        Login
+                    </NavLink>
+                </NotAuthorized>
+            </AuthorizeView>
+            
+        </div>
+
+        <div class="content px-4">
+            @Body
+        </div>
+    </div>
+</div>

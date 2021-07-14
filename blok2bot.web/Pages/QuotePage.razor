@@ -1,0 +1,73 @@
+@page "/quotes/quote/{quoteID}"
+
+@using quoteblok2net.quotes;
+@using quoteblok2net;
+@inject IQuoteManager manager
+@inject DiscordManager discordManager
+
+<h1>Viewing Quote</h1>
+
+<p>Date: @Quote.date</p>
+<p>Guid: @Quote.quoteID</p>
+<p>Quote:</p>
+@if (!Editing)
+{
+    <button class="btn btn-primary" @onclick=EditQuote>Edit</button>
+    <br>
+    <p>@QuoteText</p>
+
+}
+else
+{
+    <button class="btn btn-primary" @onclick=SaveQuote>Save</button>
+    <br>
+    <textarea  @bind="QuoteText"></textarea>
+
+}
+
+
+@code {
+    [Parameter]
+    public string guildID { get; set; }
+
+    [Parameter]
+    public string quoteID { get; set; }
+
+    public string guildName;
+
+    public IQuote Quote;
+
+    public bool Editing;
+
+    public string QuoteText;
+
+    protected override void OnInitialized()
+    {
+        var guilds = discordManager.GetGuilds();
+        if (guilds.Where(x => x.Id == guildID).Count() == 0)
+            return;
+        guildName = guilds.Where(x => x.Id == guildID).First().Name;
+
+        Quote = manager.Get(Guid.Parse(quoteID));
+        QuoteText = Quote.quoteText;
+        return;
+    }
+
+    public void EditQuote()
+    {
+        Editing = true;
+        StateHasChanged();
+    }
+
+    public void SaveQuote()
+    {
+        manager.Edit(Quote.quoteID, QuoteText);
+        Editing = false;
+        StateHasChanged();
+
+    }
+
+
+
+
+}

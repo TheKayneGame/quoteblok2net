@@ -73,13 +73,16 @@ namespace quoteblok2net.Commands.Modules
 
             string messageText =
                 $"Adding Role `{role.Name}`, React to this message with an Emote.\n" +
-                $"This Message will timeout in {Interactivity.DefaultTimeout.TotalSeconds.ToString()} seconds.";
+                $"This Message will timeout in {Interactivity.DefaultTimeout.TotalSeconds} seconds.";
 
             IUserMessage message = await channel.SendMessageAsync(messageText);
-            
-            var result = await Interactivity.NextReactionAsync((x =>
-                x.MessageId == message.Id && x.UserId == Context.User.Id
-                ));
+         
+            var result = await Interactivity.NextReactionAsync(x =>
+            {
+                Console.WriteLine($"{x.MessageId} == {message.Id}; {x.UserId} == {Context.User.Id}");
+                return x.MessageId == message.Id && x.UserId == Context.User.Id;
+            }            
+                );
             
             Interactivity.DelayedDeleteMessageAsync(message, TimeSpan.FromSeconds(5));
 

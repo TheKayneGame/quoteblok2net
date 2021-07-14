@@ -32,6 +32,7 @@ namespace quoteblok2net.RoleMenus
             EmoteRoleBindings = new List<EmoteRoleBinding>();
         }
 
+
         public string GetText()
         {
             string result = $"{Text}";
@@ -53,7 +54,6 @@ namespace quoteblok2net.RoleMenus
         public EmoteRoleBinding GetBinding(IEmote emote)
         {
             return EmoteRoleBindings.FirstOrDefault(x => x.Emote == emote.ToString());
-
         }
     }
 
