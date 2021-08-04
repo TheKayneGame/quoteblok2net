@@ -12,18 +12,9 @@ namespace quoteblok2net.BotSystem.Settings
         private Dictionary<long, DateTime> _timeCache = new Dictionary<long, DateTime>();
         private IMongoCollection<GuildSettings> _db;
 
-        public GuildSettingsManager()
+        public GuildSettingsManager(MongoConnector mongoConnector)
         {
-            _db = MongoConnector.GetDatabaseInstance().GetCollection<GuildSettings>("server_settings");
-        }
-
-        public static GuildSettingsManager GetInstance()
-        {
-            if (_serverSettingsManager == null)
-            {
-                _serverSettingsManager = new GuildSettingsManager();
-            }
-            return _serverSettingsManager;
+            _db = mongoConnector.db.GetCollection<GuildSettings>("server_settings");
         }
 
         public String GetGuildPrefix(long guildID)

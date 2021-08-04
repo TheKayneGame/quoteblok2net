@@ -11,9 +11,9 @@ namespace quoteblok2net
     public class QuoteManagerMongoDB : IQuoteManager
     {
         private IMongoCollection<QuoteMongoDB> _db;
-        public QuoteManagerMongoDB()
+        public QuoteManagerMongoDB(MongoConnector mongoConnector)
         {
-            _db = MongoConnector.GetDatabaseInstance().GetCollection<QuoteMongoDB>("quotes");
+            _db = mongoConnector.db.GetCollection<QuoteMongoDB>("quotes");
 
         }
         public bool Add(ulong guildID, ulong userID, ulong messageID, string quote)

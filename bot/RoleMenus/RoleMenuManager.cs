@@ -22,7 +22,7 @@ namespace quoteblok2net.RoleMenus
 
         private DiscordSocketClient _client;
 
-        public RoleMenuManager(DiscordSocketClient client)
+        public RoleMenuManager(DiscordSocketClient client, MongoConnector mongoConnector)
         {
             _client = client;
 
@@ -35,7 +35,7 @@ namespace quoteblok2net.RoleMenus
             var roleMenuKeysDefinitionBuilder = Builders<RoleMenu>.IndexKeys;
             var indexModel = new CreateIndexModel<RoleMenu>(roleMenuKeysDefinitionBuilder.Ascending(x => x.MessageId));
 
-            _db = MongoConnector.GetDatabaseInstance().GetCollection<RoleMenu>("role_menus");
+            _db = mongoConnector.db.GetCollection<RoleMenu>("role_menus");
 
             _db.Indexes.CreateOne(indexModel);
 

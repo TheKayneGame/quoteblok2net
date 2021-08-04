@@ -5,6 +5,7 @@ using quoteblok2net.RoleMenus;
 using System;
 using System.Threading.Tasks;
 using quoteblok2net.Utilities;
+using System.Collections.Generic;
 
 namespace quoteblok2net.Commands.Modules
 {
@@ -110,7 +111,8 @@ namespace quoteblok2net.Commands.Modules
         [Command("list", RunMode = RunMode.Async)]
         public async Task ListMenus()
         {
-            RoleMenuManager.GetGuildRoleMenus(Context.Guild.Id);
+            List<RoleMenu> menus = RoleMenuManager.GetGuildRoleMenus(Context.Guild.Id);
+
         }
 
     }

@@ -9,6 +9,7 @@ using Interactivity;
 using Microsoft.Extensions.DependencyInjection;
 using quoteblok2net.BotSystem.Configuration;
 using quoteblok2net.BotSystem.Settings;
+using quoteblok2net.database;
 using quoteblok2net.quotes;
 using quoteblok2net.RoleMenus;
 
@@ -46,13 +47,16 @@ namespace quoteblok2net
             await _client.LoginAsync(TokenType.Bot, token);
             await _client.StartAsync();
 
+            MongoConnector mongoConnector = new MongoConnector();
+
             _services = new ServiceCollection()
                 .AddSingleton(_client)
                 .AddSingleton(new InteractivityService(_client, TimeSpan.FromSeconds(30), false))
                 .AddSingleton<CommandService>()
-                .AddSingleton<IQuoteManager>(new QuoteManagerMongoDB())
-                .AddSingleton(new GuildSettingsManager())
-                .AddSingleton(new RoleMenuManager(_client))
+                .AddSingleton(mongoConnector)
+                .AddSingleton<IQuoteManager>(new QuoteManagerMongoDB(mongoConnector))
+                .AddSingleton(new GuildSettingsManager(mongoConnector))
+                .AddSingleton(new RoleMenuManager(_client, mongoConnector))
                 .BuildServiceProvider();
 
             _commandHandler = new CommandHandler(_client, _services);
