@@ -9,5 +9,3 @@ services:
       - database__password=<MONGOPASS>
       - database__address=<MONGOADD>
       - database__database=<MONGODB>
-
-      #- App__Prefix=mt! #Optional default set to mt!
