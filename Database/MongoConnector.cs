@@ -1,4 +1,5 @@
 using System;
+using Microsoft.Extensions.Configuration;
 using MongoDB.Bson;
 using MongoDB.Driver;
 using quoteblok2net.Utilities.Configs;
@@ -12,10 +13,15 @@ namespace quoteblok2net.database
         public static IMongoDatabase GetDatabaseInstance() {
 
             if (_db == null){
+                string username = Program.config.GetSection("database:username").Get<string>();
+                string password = Program.config.GetSection("database:password").Get<string>();
+                string address = Program.config.GetSection("database:address").Get<string>();
+                string database = Program.config.GetSection("database:database").Get<string>();
                 
-                String connectionString = $"mongodb://{ConfigManager.config.mongoDB.login}:{ConfigManager.config.mongoDB.pass}@{ConfigManager.config.mongoDB.address}";               
+                string connectionString = $"mongodb://{username}:{password}@{address}";
+                //Console.WriteLine(connectionString);               
                 _dbClient = new MongoClient(connectionString);
-                _db = _dbClient.GetDatabase(ConfigManager.config.mongoDB.database);
+                _db = _dbClient.GetDatabase(database);
             }
             return _db;
         }

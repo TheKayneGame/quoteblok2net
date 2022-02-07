@@ -1,0 +1,13 @@
+version: "3.9"
+services:
+  bot:
+    build: .
+    restart: unless-stopped
+    environment:
+      - token=<TOKEN>
+      - database__username=<MONGOUSERNAME>
+      - database__password=<MONGOPASS>
+      - database__address=<MONGOADD>
+      - database__database=<MONGODB>
+
+      #- App__Prefix=mt! #Optional default set to mt!

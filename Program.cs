@@ -5,19 +5,27 @@ using System.Threading.Tasks;
 using Discord;
 using Discord.WebSocket;
 using quoteblok2net.Utilities.Configs;
+using Microsoft.Extensions.Configuration;
 
 namespace quoteblok2net
 {
     class Program
     {
+        public static IConfigurationRoot config;
+
         private DiscordSocketClient _client;
 
         private CommandHandler _commandHandler;
         
 
-
         static void Main(string[] args)
         {
+            config = new ConfigurationBuilder()
+                .SetBasePath(Directory.GetCurrentDirectory())
+                .AddJsonFile("appsettings.json", optional: false, reloadOnChange: true)
+                .AddJsonFile("appsettings.Development.json", optional: true)
+                .AddJsonFile("appsettings.Development.json", optional: true)
+                .AddEnvironmentVariables().Build();
             new Program().MainAsync().GetAwaiter().GetResult();
         }
 
@@ -28,7 +36,9 @@ namespace quoteblok2net
 
         public async Task MainAsync()
         {
-            var token = ConfigManager.config.token;
+            
+
+            var token = config.GetSection("token").Get<string>();
             _client = new DiscordSocketClient();
 
             _client.Log += LogAsync;
