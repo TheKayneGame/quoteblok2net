@@ -4,7 +4,6 @@ services:
     build: .
     restart: unless-stopped
     environment:
-      - token=TOKEN
       - database__username=root
       - database__password=root
       - database__address=mongo:27017
